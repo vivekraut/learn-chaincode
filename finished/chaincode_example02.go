@@ -76,8 +76,8 @@ func (t *SimpleChaincode) write(stub *shim.ChaincodeStub, args []string) ([]byte
     var err error
     fmt.Println("Storing the health parameters in hyperledger fabric...")
 
-    if len(args) != 10 {
-        return nil, errors.New("Incorrect number of arguments. Expecting 10. name of the key and value to set")
+    if len(args) != 2 {
+        return nil, errors.New("Incorrect number of arguments. Expecting 2. name of the key and value to set")
     }
 
     key = args[0]                            //rename for fun
@@ -86,35 +86,7 @@ func (t *SimpleChaincode) write(stub *shim.ChaincodeStub, args []string) ([]byte
     if err != nil {
         return nil, err
     }
-	
-	key = args[2]                            //rename for fun
-    value = args[3]
-    err = stub.PutState(key, []byte(value))  //write the variable into the chaincode state
-    if err != nil {
-        return nil, err
-    }
-	
-	key = args[4]                            //rename for fun
-    value = args[5]
-    err = stub.PutState(key, []byte(value))  //write the variable into the chaincode state
-    if err != nil {
-        return nil, err
-    }
-	
-	key = args[6]                            //rename for fun
-    value = args[7]
-    err = stub.PutState(key, []byte(value))  //write the variable into the chaincode state
-    if err != nil {
-        return nil, err
-    }
-	
-	key = args[8]                            //rename for fun
-    value = args[9]
-    err = stub.PutState(key, []byte(value))  //write the variable into the chaincode state
-    if err != nil {
-        return nil, err
-    }
-	
+
     return nil, nil
 }
 
