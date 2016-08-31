@@ -74,19 +74,47 @@ func (t *SimpleChaincode) Init(stub *shim.ChaincodeStub, function string, args [
 func (t *SimpleChaincode) write(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
     var key, value string	
     var err error
-    fmt.Println("Storing the health parameters in hyperledger fabric...")
+    fmt.Println("Storing the parameters in hyperledger fabric...")
 
-    if len(args) != 2 {
+    /*if len(args) != 2 {
         return nil, errors.New("Incorrect number of arguments. Expecting 2. name of the key and value to set")
+    }*/
+	
+	if(len(args)%2 != 0) {
+		  fmt.Printf("Incorrect number of arguments. One of the keys or values is missing.")
+		  fmt.Println("")
+				  
+    }else{
+	     for i := 0; i < len(args); i++ {
+	     if(i%2 == 0){
+		     if args[i] != "" {
+                  fmt.Printf("Key: %s", args[i])
+				  fmt.Println("")
+				  key = args[i]    
+				  i++
+             }
+		     if(i!=len(args)) {
+			      fmt.Printf("Value: %s", args[i])
+			      fmt.Println("")
+				  value = args[i]
+			 }
+		     err = stub.PutState(key, []byte(value))  //write the variable into the chaincode state
+			 if err != nil {
+				return nil, err
+			 }
+		 }
     }
+	}
 
+	/*
     key = args[0]                            //rename for fun
     value = args[1]
     err = stub.PutState(key, []byte(value))  //write the variable into the chaincode state
     if err != nil {
         return nil, err
     }
-
+	*/
+		
     return nil, nil
 }
 
