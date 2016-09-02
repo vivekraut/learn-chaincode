@@ -260,8 +260,9 @@ func (t *SimpleChaincode) queryAll(stub *shim.ChaincodeStub, args []string) ([]b
 				jsonResp := "{\"Error\":\"Nil amount for " + args[i] + "\"}"
 				return nil, errors.New(jsonResp)
 			}
-			RetValue = Avalbytes
-			jsonRespString :=  "\"Name\":\"" + args[i] + "\",\"Value\":\"" + string(RetValue) + "\""
+			
+			jsonRespString :=  "\"Name\":\"" + args[i] + "\",\"Value\":\"" + string(Avalbytes) + "\""
+			RetValue = []byte(jsonRespString)
 			buffer.WriteString(jsonRespString)
 			
 		}
