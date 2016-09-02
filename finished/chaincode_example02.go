@@ -248,7 +248,8 @@ func (t *SimpleChaincode) queryAll(stub *shim.ChaincodeStub, args []string) ([]b
 		return nil, errors.New("Incorrect number of arguments. Expecting name of the person to query")
 	}*/
     var RetValue []byte
-	var buffer bytes.Buffer     
+	var buffer bytes.Buffer 
+    var jsonRespString string    
 		for i := 0; i < len(args); i++ {	     
 		    Avalbytes, err := stub.GetState(args[i])
 			if err != nil {
@@ -260,10 +261,13 @@ func (t *SimpleChaincode) queryAll(stub *shim.ChaincodeStub, args []string) ([]b
 				jsonResp := "{\"Error\":\"Nil amount for " + args[i] + "\"}"
 				return nil, errors.New(jsonResp)
 			}
-			
-			jsonRespString :=  "\"Name\":\"" + args[i] + "\",\"Value\":\"" + string(Avalbytes) + "\""
-			RetValue = []byte(jsonRespString)
-			buffer.WriteString(jsonRespString)
+			if(i!=len(args)-1) {
+			   jsonRespString =  string(Avalbytes) + ","
+			}else{
+			   jsonRespString =  string(Avalbytes)
+			}
+			buffer.WriteString(jsonRespString)			
+			RetValue = []byte(buffer.String())			
 			
 		}
 		jsonResp := "{"+buffer.String()+"}"
