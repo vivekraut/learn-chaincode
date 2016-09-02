@@ -26,6 +26,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"bytes"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
@@ -201,9 +202,15 @@ func (t *SimpleChaincode) delete(stub *shim.ChaincodeStub, args []string) ([]byt
 
 // Query callback representing the query of a chaincode
 func (t *SimpleChaincode) Query(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
-	if function != "query" {
+	/*if function != "query" {
 		return nil, errors.New("Invalid query function name. Expecting \"query\"")
-	}
+	}*/
+	
+	if function == "queryAll" {
+		fmt.Println("Calling QueryAll()")
+        return t.queryAll(stub, args)
+    }
+	
 	var A string // Entities
 	var err error
 
@@ -229,6 +236,63 @@ func (t *SimpleChaincode) Query(stub *shim.ChaincodeStub, function string, args 
 	fmt.Printf("Query Response:%s\n", jsonResp)
 	return Avalbytes, nil
 }
+
+
+// Query callback representing the query of a chaincode
+func (t *SimpleChaincode) queryAll(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
+		
+	//var A string // Entities
+	//var err error
+
+	/*if len(args) != 1 {
+		return nil, errors.New("Incorrect number of arguments. Expecting name of the person to query")
+	}*/
+    var RetValue []byte
+	var buffer bytes.Buffer     
+		for i := 0; i < len(args); i++ {	     
+		    Avalbytes, err := stub.GetState(args[i])
+			if err != nil {
+				jsonResp := "{\"Error\":\"Failed to get state for " + args[i] + "\"}"
+				return nil, errors.New(jsonResp)
+			}
+
+			if Avalbytes == nil {
+				jsonResp := "{\"Error\":\"Nil amount for " + args[i] + "\"}"
+				return nil, errors.New(jsonResp)
+			}
+			RetValue = Avalbytes
+			jsonRespString :=  "\"Name\":\"" + args[i] + "\",\"Value\":\"" + string(RetValue) + "\""
+			buffer.WriteString(jsonRespString)
+			
+		}
+		jsonResp := "{"+buffer.String()+"}"
+		fmt.Printf("Query Response:%s\n", jsonResp)
+		return RetValue, nil
+		
+	
+	/*
+	A = args[0]
+
+	// Get the state from the ledger
+	Avalbytes, err := stub.GetState(A)
+	if err != nil {
+		jsonResp := "{\"Error\":\"Failed to get state for " + A + "\"}"
+		return nil, errors.New(jsonResp)
+	}
+
+	if Avalbytes == nil {
+		jsonResp := "{\"Error\":\"Nil amount for " + A + "\"}"
+		return nil, errors.New(jsonResp)
+	}
+
+	jsonResp := "{\"Name\":\"" + A + "\",\"Amount\":\"" + string(Avalbytes) + "\"}"
+	fmt.Printf("Query Response:%s\n", jsonResp)
+	return Avalbytes, nil
+	*/
+}
+
+
+
 
 func main() {
 	err := shim.Start(new(SimpleChaincode))
