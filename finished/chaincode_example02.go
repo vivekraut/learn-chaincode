@@ -263,9 +263,9 @@ func (t *SimpleChaincode) queryAll(stub *shim.ChaincodeStub, args []string) ([]b
 				//return nil, errors.New(jsonResp)
 			}
 			if(i!=len(args)-1) {
-			   jsonRespString =  args[i]+","+string(Avalbytes)+","
+			   jsonRespString =  args[i]+":"+string(Avalbytes)+","
 			}else{
-			   jsonRespString =  args[i]+","+string(Avalbytes)
+			   jsonRespString =  args[i]+":"+string(Avalbytes)
 			}
 			buffer.WriteString(jsonRespString)			
 			RetValue = []byte(buffer.String())			
