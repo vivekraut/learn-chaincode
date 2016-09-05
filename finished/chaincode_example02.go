@@ -142,7 +142,8 @@ func (t *SimpleChaincode) Invoke(stub *shim.ChaincodeStub, function string, args
 
 	A = args[0]
 	B = args[1]
-
+	
+	
 	// Get the state from the ledger
 	// TODO: will be nice to have a GetAllState call to ledger
 	Avalbytes, err := stub.GetState(A)
@@ -168,6 +169,65 @@ func (t *SimpleChaincode) Invoke(stub *shim.ChaincodeStub, function string, args
 	Aval = Aval - X
 	Bval = Bval + X
 	fmt.Printf("Aval = %d, Bval = %d\n", Aval, Bval)
+	
+	//Store state for transactions
+	var transacted, historyval string
+	transacted = "T_"+args[0]+"|"+args[1]
+	Tvalbytes, err := stub.GetState(transacted)
+	if err != nil {
+		return nil, errors.New("Failed to get transacted state")
+	}
+	if Tvalbytes == nil {
+		historyval = args[2]
+	}else{
+		historyval = string(Tvalbytes)
+		historyval = historyval+","+args[2]		
+	}	
+	err = stub.PutState(transacted, []byte(historyval))
+	if err != nil {
+		return nil, err
+	}
+	
+	
+	//Store state for sponsor transactions
+	var s_transactions, s_history string
+	s_transactions = "T_"+args[0]
+	Svalbytes, err := stub.GetState(s_transactions)
+	if err != nil {
+		return nil, errors.New("Failed to get sponsor transacted state")
+	}
+	if Svalbytes == nil {
+		s_history = args[1]+"|"+args[2]
+	}else{
+		s_history = string(Svalbytes)
+		s_history = s_history+","+args[1]+"|"+args[2]	
+	}	
+	err = stub.PutState(s_transactions, []byte(s_history))
+	if err != nil {
+		return nil, err
+	}
+	
+	
+	//Store state for Idea transactions
+	var i_transactions, i_history string
+	i_transactions = "T_"+args[1]
+	Ivalbytes, err := stub.GetState(i_transactions)
+	if err != nil {
+		return nil, errors.New("Failed to get idea transacted state")
+	}
+	if Ivalbytes == nil {
+		i_history = args[0]+"|"+args[2]
+	}else{
+		i_history = string(Ivalbytes)
+		i_history = i_history+","+args[0]+"|"+args[2]	
+	}	
+	err = stub.PutState(i_transactions, []byte(i_history))
+	if err != nil {
+		return nil, err
+	}
+	
+	
+	
 
 	// Write the state back to the ledger
 	err = stub.PutState(A, []byte(strconv.Itoa(Aval)))
@@ -211,6 +271,11 @@ func (t *SimpleChaincode) Query(stub *shim.ChaincodeStub, function string, args 
         return t.queryAll(stub, args)
     }
 	
+	if function == "queryTransact" {
+		fmt.Println("Calling QueryTransact()")
+        return t.queryTransact(stub, args)
+    }
+	
 	var A string // Entities
 	var err error
 
@@ -237,6 +302,9 @@ func (t *SimpleChaincode) Query(stub *shim.ChaincodeStub, function string, args 
 	fmt.Printf("Query Response:%s\n", jsonResp)
 	return Avalbytes, nil
 }
+
+
+
 
 
 // Query callback representing the query of a chaincode
@@ -272,6 +340,65 @@ func (t *SimpleChaincode) queryAll(stub *shim.ChaincodeStub, args []string) ([]b
 			RetValue = []byte(buffer.String())			
 			
 		}
+		jsonResp := "{"+buffer.String()+"}"
+		fmt.Printf("Query Response:%s\n", jsonResp)
+		return RetValue, nil
+		
+	
+	/*
+	A = args[0]
+
+	// Get the state from the ledger
+	Avalbytes, err := stub.GetState(A)
+	if err != nil {
+		jsonResp := "{\"Error\":\"Failed to get state for " + A + "\"}"
+		return nil, errors.New(jsonResp)
+	}
+
+	if Avalbytes == nil {
+		jsonResp := "{\"Error\":\"Nil amount for " + A + "\"}"
+		return nil, errors.New(jsonResp)
+	}
+
+	jsonResp := "{\"Name\":\"" + A + "\",\"Amount\":\"" + string(Avalbytes) + "\"}"
+	fmt.Printf("Query Response:%s\n", jsonResp)
+	return Avalbytes, nil
+	*/
+}
+
+
+
+
+
+// Query callback representing the query of a chaincode
+func (t *SimpleChaincode) queryTransact(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
+		
+	//var A string // Entities
+	//var err error
+
+	/*if len(args) != 1 {
+		return nil, errors.New("Incorrect number of arguments. Expecting name of the person to query")
+	}*/
+    var RetValue []byte
+	var buffer bytes.Buffer 
+    var jsonRespString, queryparam string  
+	queryparam = "T_"+args[0]
+			     
+		Tvalbytes, err := stub.GetState(queryparam)
+		if err != nil {
+			jsonResp := "{\"Error\":\"Failed to get state for " + args[0] + "\"}"
+			return nil, errors.New(jsonResp)
+		}
+
+		if Tvalbytes == nil {
+			Tvalbytes = []byte("0")
+			//jsonResp := "{\"Error\":\"Nil amount for " + args[i] + "\"}"
+			//return nil, errors.New(jsonResp)
+		}
+		
+		jsonRespString =  string(Tvalbytes)		
+		buffer.WriteString(jsonRespString)			
+		RetValue = []byte(buffer.String())
 		jsonResp := "{"+buffer.String()+"}"
 		fmt.Printf("Query Response:%s\n", jsonResp)
 		return RetValue, nil
