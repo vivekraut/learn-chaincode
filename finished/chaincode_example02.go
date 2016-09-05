@@ -172,6 +172,61 @@ func (t *SimpleChaincode) Invoke(stub *shim.ChaincodeStub, function string, args
 	Bval = Bval + X
 	fmt.Printf("Aval = %d, Bval = %d\n", Aval, Bval)
 	
+	//Store state for transactions
+	var transacted, historyval string
+	transacted = "T_"+args[0]+"|"+args[1]
+	Tvalbytes, err := stub.GetState(transacted)
+	if err != nil {
+		return nil, errors.New("Failed to get transacted state")
+	}
+	if Tvalbytes == nil {
+		historyval = args[2]
+	}else{
+		historyval = string(Tvalbytes)
+		historyval = historyval+","+args[2]		
+	}	
+	err = stub.PutState(transacted, []byte(historyval))
+	if err != nil {
+		return nil, err
+	}
+	
+	
+	//Store state for sponsor transactions
+	var s_transactions, s_history string
+	s_transactions = "T_"+args[0]
+	Svalbytes, err := stub.GetState(s_transactions)
+	if err != nil {
+		return nil, errors.New("Failed to get sponsor transacted state")
+	}
+	if Svalbytes == nil {
+		s_history = args[1]+"|"+args[2]
+	}else{
+		s_history = string(Svalbytes)
+		s_history = s_history+","+args[1]+"|"+args[2]	
+	}	
+	err = stub.PutState(s_transactions, []byte(s_history))
+	if err != nil {
+		return nil, err
+	}
+	
+	
+	//Store state for Idea transactions
+	var i_transactions, i_history string
+	i_transactions = "T_"+args[1]
+	Ivalbytes, err := stub.GetState(i_transactions)
+	if err != nil {
+		return nil, errors.New("Failed to get idea transacted state")
+	}
+	if Ivalbytes == nil {
+		i_history = args[0]+"|"+args[2]
+	}else{
+		i_history = string(Ivalbytes)
+		i_history = i_history+","+args[0]+"|"+args[2]	
+	}	
+	err = stub.PutState(i_transactions, []byte(i_history))
+	if err != nil {
+		return nil, err
+	}
 	
 	
 	
