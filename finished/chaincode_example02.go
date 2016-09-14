@@ -22,8 +22,7 @@ package main
 //chaincode_example05 show's how chaincode ID can be passed in as a parameter instead of
 //hard-coding.
 
-import (
-	"encoding/base64"
+import (	
 	"errors"
 	"fmt"
 	"strconv"
