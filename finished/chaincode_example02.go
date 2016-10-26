@@ -73,7 +73,7 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 
 func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
     var key, value string	
-    var err error
+    //var err error
     fmt.Println("Storing the parameters in hyperledger fabric...")
 
     /*if len(args) != 2 {
@@ -100,7 +100,7 @@ func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string)
 			 }
 			 
 			 //check if the state exists. If not initialize the state
-			 Avalbytes, err := stub.GetState(key)
+			Avalbytes, err := stub.GetState(key)
 			if err != nil {
 				jsonResp := "{\"Error\":\"Failed to get state for " + key + "\"}"
 				return nil, errors.New(jsonResp)
@@ -108,13 +108,13 @@ func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string)
 		
 			if Avalbytes == nil {
 				Avalbytes = []byte("0")
-				err = stub.PutState(key, Avalbytes)
+				//err = stub.PutState(key, Avalbytes)
 				
 				//jsonResp := "{\"Error\":\"Nil amount for " + key + "\"}"
 				//return nil, errors.New(jsonResp)
 			}
 			 
-		     err = stub.PutState(key, []byte(value))  //write the variable into the chaincode state
+		        err = stub.PutState(key, []byte(value))  //write the variable into the chaincode state
 			 if err != nil {
 				return nil, err
 			 }
