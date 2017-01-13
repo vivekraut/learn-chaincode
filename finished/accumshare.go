@@ -128,7 +128,7 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
         }
         fmt.Println(string(body))
 	
-	err = stub.PutState(SubscriberIDValue, []byte(string(body))
+	err = stub.PutState(SubscriberIDValue, []byte(string(body)))
 	if err != nil {
 		return nil, err
 	}
