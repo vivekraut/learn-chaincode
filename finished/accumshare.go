@@ -235,9 +235,9 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	fmt.Printf("SubscriberAccums = %d\n", SubscriberAccums)	
 	*/
 	res := &AccumShare{}
-    	err := json.Unmarshal([]byte(t.Query(stub, SubscriberIDValue)), res)
-        if(err!=nil) {
-            log.Fatal(err)
+	errM := json.Unmarshal([]byte(return t.Query(stub, SubscriberIDValue)), res)
+        if(errM!=nil) {
+            log.Fatal(errM)
         }
 
     	fmt.Printf("%v\n",res)
