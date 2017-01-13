@@ -28,45 +28,111 @@ import (
 	"strconv"
 	"bytes"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
+	"encoding/json"	
 )
+
+type AccumShare struct {
+	Claims struct {
+		PolicyID string `json:"PolicyID"`
+		SubscriberID string `json:"SubscriberID"`
+		PolicyStartDate string `json:"PolicyStartDate"`
+		PolicyEndDate string `json:"PolicyEndDate"`
+		PolicyType string `json:"PolicyType"`
+		DeductibleBalance string `json:"DeductibleBalance"`
+		OOPBalance string `json:"OOPBalance"`
+		Claim struct {
+			ClaimID string `json:"ClaimID"`
+			MemberID string `json:"MemberID"`
+			CreateDTTM string `json:"CreateDTTM"`
+			LastUpdateDTTM string `json:"LastUpdateDTTM"`
+			Transaction struct {
+				TransactionID string `json:"TransactionID"`
+				Accumulator struct {
+					Type string `json:"Type"`
+					Amount string `json:"Amount"`
+					UoM string `json:"UoM"`
+				} `json:"Accumulator"`
+				Participant string `json:"Participant"`
+				TotalTransactionAmount string `json:"TotalTransactionAmount"`
+				UoM string `json:"UoM"`
+				Overage string `json:"Overage"`
+			} `json:"Transaction"`
+			TotalClaimAmount string `json:"TotalClaimAmount"`
+			UoM string `json:"UoM"`
+		} `json:"Claim"`
+	} `json:"Claims"`
+}
+
 
 // SimpleChaincode example simple Chaincode implementation
 type SimpleChaincode struct {
 }
 
 func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-	var A, B string    // Entities
-	var Aval, Bval int // Asset holdings
+	
+	
+	var SubscriberID, PolicyID, PolicyStartDate, PolicyEndDate, PolicyType, DeductibleBalance, OOPBalance string    // Entities
+	var SubscriberIDValue, PolicyIDValue, PolicyStartDateValue, PolicyEndDateValue, PolicyTypeValue, DeductibleBalanceValue, OOPBalanceValue string
 	var err error
 
-	if len(args) != 4 {
+	/*if len(args) != 4 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 4")
-	}
-
+	}*/
+	
+	
 	// Initialize the chaincode
-	A = args[0]
-	Aval, err = strconv.Atoi(args[1])
+	
+	SubscriberID = args[0]
+	SubscriberIDValue = args[1]
+	
+	PolicyID = args[2]
+	PolicyIDValue = args[3]
+	
+	PolicyStartDate = args[4]
+	PolicyStartDateValue = args[5]
+	
+	PolicyEndDate = args[6]
+	PolicyEndDateValue = args[7]
+	
+	PolicyType = args[8]
+	PolicyTypeValue = args[9]
+	
+	DeductibleBalance = args[10]
+	DeductibleBalanceValue = args[11]
+	
+	OOPBalance = args[12]
+	OOPBalanceValue = args[13]
+	
+	
+	
+	jsonResponse := `{   "Claims": {      "PolicyID": "",      "SubscriberID": "",      "PolicyStartDate": "",      "PolicyEndDate": "",      "PolicyType": "",            "DeductibleBalance":"",      "OOPBalance":"",    	  "BalanceUoM":"", 	 	        "Claim": {         "ClaimID": "",         "MemberID": "",         "CreateDTTM": "",         "LastUpdateDTTM": "",         "Transaction": {            "TransactionID": "",            "Accumulator": {               "Type": "",                              "Amount": "",               "UoM": ""            },   "Overage":"",         "Participant": "",            "TotalTransactionAmount": "",            "UoM": ""         },         "TotalClaimAmount": "",         "UoM": ""      }   }}`
+	
+	res := &AccumShare{}
+	
+	err := json.Unmarshal([]byte(jsonResponse), res)
+        if(err!=nil) {
+            log.Fatal(err)
+        }
+	
+	res.Claims.SubscriberID = SubscriberIDValue
+	res.Claims.PolicyID = PolicyIDValue
+	res.Claims.PolicyStartDate = PolicyStartDateValue
+	res.Claims.PolicyEndDate = PolicyEndDate
+	res.Claims.PolicyType = PolicyTypeValue	
+	res.Claims.DeductibleBalance = DeductibleBalanceValue
+	res.Claims.OOPBalance = OOPBalanceValue
+	
+	body, err := json.Marshal(res)
 	if err != nil {
-		return nil, errors.New("Expecting integer value for asset holding")
-	}
-	B = args[2]
-	Bval, err = strconv.Atoi(args[3])
-	if err != nil {
-		return nil, errors.New("Expecting integer value for asset holding")
-	}
-	fmt.Printf("Aval = %d, Bval = %d\n", Aval, Bval)
-
-	// Write the state to the ledger
-	err = stub.PutState(A, []byte(strconv.Itoa(Aval)))
+           panic(err)
+        }
+        fmt.Println(string(body))
+	
+	err = stub.PutState(SubscriberIDValue, []byte(string(body))
 	if err != nil {
 		return nil, err
 	}
-
-	err = stub.PutState(B, []byte(strconv.Itoa(Bval)))
-	if err != nil {
-		return nil, err
-	}
-
+	
 	return nil, nil
 }
 
