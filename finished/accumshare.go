@@ -234,10 +234,26 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	}
 	fmt.Printf("SubscriberAccums = %d\n", SubscriberAccums)	
 	*/
+	
+	SubscriberAccums, err := stub.GetState(SubscriberIDValue)
+	if err != nil {
+		jsonResp := "{\"Error\":\"Failed to get state for " + SubscriberIDValue + "\"}"
+		return nil, errors.New(jsonResp)
+	}
+
+	if SubscriberAccums == nil {
+		SubscriberAccums = []byte("No Records Found")
+		//jsonResp := "{\"Error\":\"Nil amount for " + A + "\"}"
+		//return nil, errors.New(jsonResp)
+	}
+
+	jsonResp := "{\"Name\":\"" + SubscriberIDValue + "\",\"Value\":\"" + string(SubscriberAccums) + "\"}"
+	
+	
 	res := &AccumShare{}
-	errM := json.Unmarshal([]byte(return t.Query(stub, SubscriberIDValue)), res)
-        if(errM!=nil) {
-            log.Fatal(errM)
+	err = json.Unmarshal([]byte(jsonResp), res)
+        if(err!=nil) {
+            log.Fatal(err)
         }
 
     	fmt.Printf("%v\n",res)
