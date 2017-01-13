@@ -72,7 +72,7 @@ type SimpleChaincode struct {
 func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	
 	
-	var SubscriberID, PolicyID, PolicyStartDate, PolicyEndDate, PolicyType, DeductibleBalance, OOPBalance string    // Entities
+	//var SubscriberID, PolicyID, PolicyStartDate, PolicyEndDate, PolicyType, DeductibleBalance, OOPBalance string    // Entities
 	var SubscriberIDValue, PolicyIDValue, PolicyStartDateValue, PolicyEndDateValue, PolicyTypeValue, DeductibleBalanceValue, OOPBalanceValue string
 	//var err error
 
@@ -83,25 +83,25 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	
 	// Initialize the chaincode
 	
-	SubscriberID = args[0]
+	//SubscriberID = args[0]	
 	SubscriberIDValue = args[1]
 	
-	PolicyID = args[2]
+	//PolicyID = args[2]
 	PolicyIDValue = args[3]
 	
-	PolicyStartDate = args[4]
+	//PolicyStartDate = args[4]
 	PolicyStartDateValue = args[5]
 	
-	PolicyEndDate = args[6]
+	//PolicyEndDate = args[6]
 	PolicyEndDateValue = args[7]
 	
-	PolicyType = args[8]
+	//PolicyType = args[8]
 	PolicyTypeValue = args[9]
 	
-	DeductibleBalance = args[10]
+	//DeductibleBalance = args[10]
 	DeductibleBalanceValue = args[11]
 	
-	OOPBalance = args[12]
+	//OOPBalance = args[12]
 	OOPBalanceValue = args[13]
 	
 	
