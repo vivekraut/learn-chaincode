@@ -118,7 +118,7 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	res.Claims.SubscriberID = SubscriberIDValue
 	res.Claims.PolicyID = PolicyIDValue
 	res.Claims.PolicyStartDate = PolicyStartDateValue
-	res.Claims.PolicyEndDate = PolicyEndDate
+	res.Claims.PolicyEndDate = PolicyEndDateValue
 	res.Claims.PolicyType = PolicyTypeValue	
 	res.Claims.DeductibleBalance = DeductibleBalanceValue
 	res.Claims.OOPBalance = OOPBalanceValue
