@@ -137,80 +137,8 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	return nil, nil
 }
 
+func (t *SimpleChaincode) processClaim(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
-func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-    var key, value string	
-    //var err error
-    fmt.Println("Storing the parameters in hyperledger fabric...")
-
-    /*if len(args) != 2 {
-        return nil, errors.New("Incorrect number of arguments. Expecting 2. name of the key and value to set")
-    }*/
-	
-	if(len(args)%2 != 0) {
-		  fmt.Printf("Incorrect number of arguments. One of the keys or values is missing.")
-		  fmt.Println("")
-				  
-    }else{
-	     for i := 0; i < len(args); i++ {
-	     if(i%2 == 0){
-		     if args[i] != "" {
-                  fmt.Printf("Key: %s", args[i])
-				  fmt.Println("")
-				  key = args[i]    
-				  i++
-             }
-		     if(i!=len(args)) {
-			      fmt.Printf("Value: %s", args[i])
-			      fmt.Println("")
-				  value = args[i]
-			 }
-			 
-			 //check if the state exists. If not initialize the state
-			Avalbytes, err := stub.GetState(key)
-			if err != nil {
-				jsonResp := "{\"Error\":\"Failed to get state for " + key + "\"}"
-				return nil, errors.New(jsonResp)
-			}
-		
-			if Avalbytes == nil {
-				Avalbytes = []byte("0")
-				//err = stub.PutState(key, Avalbytes)
-				
-				//jsonResp := "{\"Error\":\"Nil amount for " + key + "\"}"
-				//return nil, errors.New(jsonResp)
-			}
-			 
-		        err = stub.PutState(key, []byte(value))  //write the variable into the chaincode state
-			 if err != nil {
-				return nil, err
-			 }
-		 }
-    }
-	}
-
-	/*
-    key = args[0]                            //rename for fun
-    value = args[1]
-    err = stub.PutState(key, []byte(value))  //write the variable into the chaincode state
-    if err != nil {
-        return nil, err
-    }
-	*/
-		
-    return nil, nil
-}
-
-
-func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-	if function == "delete" {
-		// Deletes an entity from its state
-		return t.delete(stub, args)
-	}
-	if function == "write" {
-		fmt.Println("Calling write()")
-        return t.write(stub, args)
-        }
 	var err error
 	var DeductibleLimit int
 	var SubscriberIDValue, ClaimIDValue, TransactionIDValue, TransactionAmountValue, UoMValue, CreateDTTMValue, LastUpdateDTTMValue, AccumTypeValue, ParticipantValue string
@@ -227,7 +155,6 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	
 	
 	DeductibleLimit = 500
-	
 	/*SubscriberAccums, err := t.query(stub, SubscriberIDValue)
 	if err != nil {
 		return nil, errors.New("Failed to get state")
@@ -302,6 +229,89 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	if err != nil {
 		return nil, err
 	}
+	
+	
+
+}
+
+
+func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+    var key, value string	
+    //var err error
+    fmt.Println("Storing the parameters in hyperledger fabric...")
+
+    /*if len(args) != 2 {
+        return nil, errors.New("Incorrect number of arguments. Expecting 2. name of the key and value to set")
+    }*/
+	
+	if(len(args)%2 != 0) {
+		  fmt.Printf("Incorrect number of arguments. One of the keys or values is missing.")
+		  fmt.Println("")
+				  
+    }else{
+	     for i := 0; i < len(args); i++ {
+	     if(i%2 == 0){
+		     if args[i] != "" {
+                  fmt.Printf("Key: %s", args[i])
+				  fmt.Println("")
+				  key = args[i]    
+				  i++
+             }
+		     if(i!=len(args)) {
+			      fmt.Printf("Value: %s", args[i])
+			      fmt.Println("")
+				  value = args[i]
+			 }
+			 
+			 //check if the state exists. If not initialize the state
+			Avalbytes, err := stub.GetState(key)
+			if err != nil {
+				jsonResp := "{\"Error\":\"Failed to get state for " + key + "\"}"
+				return nil, errors.New(jsonResp)
+			}
+		
+			if Avalbytes == nil {
+				Avalbytes = []byte("0")
+				//err = stub.PutState(key, Avalbytes)
+				
+				//jsonResp := "{\"Error\":\"Nil amount for " + key + "\"}"
+				//return nil, errors.New(jsonResp)
+			}
+			 
+		        err = stub.PutState(key, []byte(value))  //write the variable into the chaincode state
+			 if err != nil {
+				return nil, err
+			 }
+		 }
+    }
+	}
+
+	/*
+    key = args[0]                            //rename for fun
+    value = args[1]
+    err = stub.PutState(key, []byte(value))  //write the variable into the chaincode state
+    if err != nil {
+        return nil, err
+    }
+	*/
+		
+    return nil, nil
+}
+
+
+func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+	if function == "delete" {
+		// Deletes an entity from its state
+		return t.delete(stub, args)
+	}
+	if function == "write" {
+		fmt.Println("Calling write()")
+        return t.write(stub, args)
+        }
+	if function == "processClaim" {
+		fmt.Println("Calling processClaim()")
+        return t.processClaim(stub, args)
+        }	
 	
 	return nil, nil
 }
