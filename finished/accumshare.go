@@ -202,7 +202,6 @@ func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string)
 }
 
 
-// Transaction makes payment of X units from A to B
 func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	if function == "delete" {
 		// Deletes an entity from its state
@@ -211,117 +210,83 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	if function == "write" {
 		fmt.Println("Calling write()")
         return t.write(stub, args)
-    }
-
-	var A, B string    // Entities
-	var Aval, Bval int // Asset holdings
-	var X int          // Transaction value
+        }
 	var err error
-
-	if len(args) != 3 {
-		return nil, errors.New("Incorrect number of arguments. Expecting 3")
-	}
-
-	A = args[0]
-	B = args[1]
+	var DeductibleLimit int
+	var SubscriberIDValue, ClaimIDValue, TransactionIDValue, TransactionAmountValue, UoMValue, CreateDTTMValue, LastUpdateDTTMValue, AccumTypeValue, ParticipantValue string
+	
+	SubscriberIDValue = args[1]
+	ClaimIDValue = args[3]
+	TransactionIDValue = args[5]
+	TransactionAmountValue = args[7]
+	UoMValue = args[9]
+	CreateDTTMValue = args[11]
+	LastUpdateDTTMValue = args[13]
+	AccumTypeValue = args[15]
+	ParticipantValue = args[17]
 	
 	
-	// Get the state from the ledger
-	// TODO: will be nice to have a GetAllState call to ledger
-	Avalbytes, err := stub.GetState(A)
+	DeductibleLimit = 500
+	
+	SubscriberAccums, err := t.query(stub, SubscriberIDValue)
 	if err != nil {
 		return nil, errors.New("Failed to get state")
 	}
-	if Avalbytes == nil {
-		return nil, errors.New("Entity not found")
-	}
-	Aval, _ = strconv.Atoi(string(Avalbytes))
-
-	Bvalbytes, err := stub.GetState(B)
-	if err != nil {
-		return nil, errors.New("Failed to get state")
-	}
-	if Bvalbytes == nil {
-		return nil, errors.New("Entity not found")
-	}
-	Bval, _ = strconv.Atoi(string(Bvalbytes))
-
-	// Perform the execution
-	X, err = strconv.Atoi(args[2])
-	Aval = Aval - X
-	Bval = Bval + X
-	fmt.Printf("Aval = %d, Bval = %d\n", Aval, Bval)
+	fmt.Printf("SubscriberAccums = %d\n", SubscriberAccums)	
 	
-	//Store state for transactions
-	var transacted, historyval string
-	transacted = "T_"+args[0]+"|"+args[1]
-	Tvalbytes, err := stub.GetState(transacted)
-	if err != nil {
-		return nil, errors.New("Failed to get transacted state")
+	res := &AccumShare{}
+    	err := json.Unmarshal([]byte(SubscriberAccums), res)
+        if(err!=nil) {
+            log.Fatal(err)
+        }
+
+    	fmt.Printf("%v\n",res)
+    	fmt.Printf("\tPolicy ID: %s\n",res.Claims.PolicyID)
+    	fmt.Printf("\tSubscriber ID: %s\n",res.Claims.SubscriberID)
+	fmt.Printf("\t Deductible Balance: %s\n",res.Claims.DeductibleBalance)
+	
+	var DedBalance, TransAmount, Overage int
+	Overage = 0
+	DedBalance, err = strconv.Atoi(res.Claims.DeductibleBalance)
+	TransAmount, err = strconv.Atoi(TransactionAmountValue)
+	
+	
+	if(AccumTypeValue == "IIDED"){
+		if((TransAmount + DedBalance) <= DeductibleLimit){
+			DedBalance = DedBalance + TransAmount	
+		
+		}else{
+			DedBalance = DeductibleLimit
+			Overage = TransAmount + DedBalance - DeductibleLimit
+		}		
 	}
-	if Tvalbytes == nil {
-		historyval = args[2]
-	}else{
-		historyval = string(Tvalbytes)
-		historyval = historyval+","+args[2]		
-	}	
-	err = stub.PutState(transacted, []byte(historyval))
+	
+	res.Claims.DeductibleBalance = strconv.Itoa(DedBalance)
+	res.Claims.Claim.ClaimID = ClaimIDValue
+	res.Claims.Claim.Transaction.TransactionID = TransactionIDValue
+	res.Claims.Claim.Transaction.Accumulator.Type = AccumTypeValue
+	res.Claims.Claim.Transaction.Accumulator.Amount = strconv.Itoa(TransAmount - Overage)
+	res.Claims.Claim.Transaction.Accumulator.UoM = UoMValue
+	res.Claims.Claim.Transaction.Overage = strconv.Itoa(Overage)
+	res.Claims.Claim.Transaction.Participant = ParticipantValue
+	res.Claims.Claim.Transaction.TotalTransactionAmount = TransactionAmountValue
+	res.Claims.Claim.Transaction.UoM = UoMValue
+	res.Claims.Claim.TotalClaimAmount = TransactionAmountValue
+	res.Claims.Claim.UoM = UoMValue
+	res.Claims.Claim.CreateDTTM = CreateDTTMValue
+	res.Claims.Claim.LastUpdateDTTM = LastUpdateDTTMValue
+	res.Claims.Claim.MemberID = SubscriberIDValue
+	
+	updatedBody, err := json.Marshal(res)
+	if err != nil {
+        	panic(err)
+    	}
+    	fmt.Println(string(updatedBody))
+	err = stub.PutState(SubscriberIDValue, []byte(string(updatedBody)))
 	if err != nil {
 		return nil, err
 	}
 	
-	
-	//Store state for sponsor transactions
-	var s_transactions, s_history string
-	s_transactions = "T_"+args[0]
-	Svalbytes, err := stub.GetState(s_transactions)
-	if err != nil {
-		return nil, errors.New("Failed to get sponsor transacted state")
-	}
-	if Svalbytes == nil {
-		s_history = args[1]+"|"+args[2]
-	}else{
-		s_history = string(Svalbytes)
-		s_history = s_history+","+args[1]+"|"+args[2]	
-	}	
-	err = stub.PutState(s_transactions, []byte(s_history))
-	if err != nil {
-		return nil, err
-	}
-	
-	
-	//Store state for Idea transactions
-	var i_transactions, i_history string
-	i_transactions = "T_"+args[1]
-	Ivalbytes, err := stub.GetState(i_transactions)
-	if err != nil {
-		return nil, errors.New("Failed to get idea transacted state")
-	}
-	if Ivalbytes == nil {
-		i_history = args[0]+"|"+args[2]
-	}else{
-		i_history = string(Ivalbytes)
-		i_history = i_history+","+args[0]+"|"+args[2]	
-	}	
-	err = stub.PutState(i_transactions, []byte(i_history))
-	if err != nil {
-		return nil, err
-	}
-	
-	
-	
-
-	// Write the state back to the ledger
-	err = stub.PutState(A, []byte(strconv.Itoa(Aval)))
-	if err != nil {
-		return nil, err
-	}
-
-	err = stub.PutState(B, []byte(strconv.Itoa(Bval)))
-	if err != nil {
-		return nil, err
-	}
-
 	return nil, nil
 }
 
