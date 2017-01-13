@@ -228,14 +228,14 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	
 	DeductibleLimit = 500
 	
-	SubscriberAccums, err := t.query(stub, SubscriberIDValue)
+	/*SubscriberAccums, err := t.query(stub, SubscriberIDValue)
 	if err != nil {
 		return nil, errors.New("Failed to get state")
 	}
 	fmt.Printf("SubscriberAccums = %d\n", SubscriberAccums)	
-	
+	*/
 	res := &AccumShare{}
-    	err := json.Unmarshal([]byte(SubscriberAccums), res)
+    	err := json.Unmarshal([]byte(t.query(stub, SubscriberIDValue)), res)
         if(err!=nil) {
             log.Fatal(err)
         }
