@@ -163,6 +163,7 @@ func (t *SimpleChaincode) processClaim(stub shim.ChaincodeStubInterface, args []
 	*/
 	
 	SubscriberAccums, err := stub.GetState(SubscriberIDValue)
+	fmt.Printf("%v\n",SubscriberAccums)
 	if err != nil {
 		jsonResp := "{\"Error\":\"Failed to get state for " + SubscriberIDValue + "\"}"
 		return nil, errors.New(jsonResp)
@@ -175,10 +176,10 @@ func (t *SimpleChaincode) processClaim(stub shim.ChaincodeStubInterface, args []
 	}
 
 	jsonResp := "{\"Name\":\"" + SubscriberIDValue + "\",\"Value\":\"" + string(SubscriberAccums) + "\"}"
-	
+	fmt.Printf("%v\n",jsonResp)
 	
 	res := &AccumShare{}
-	err = json.Unmarshal([]byte(jsonResp), res)
+	err = json.Unmarshal([]byte(SubscriberAccums), res)
         if(err!=nil) {
             log.Fatal(err)
         }
