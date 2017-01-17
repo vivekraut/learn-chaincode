@@ -30,7 +30,10 @@ import (
 	"log"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	"encoding/json"	
+	"github.com/op/go-logging"
 )
+
+var myLogger = logging.MustGetLogger("accum_share")
 
 type AccumShare struct {
 	Claims struct {
@@ -503,6 +506,7 @@ func (t *SimpleChaincode) queryTransact(stub shim.ChaincodeStubInterface, args [
 
 
 func main() {
+	myLogger.Debugf("***********Accum Share*************")
 	err := shim.Start(new(SimpleChaincode))
 	if err != nil {
 		fmt.Printf("Error starting Simple chaincode: %s", err)
