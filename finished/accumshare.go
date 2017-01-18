@@ -23,7 +23,7 @@ package main
 //hard-coding.
 
 import (	
-	"errors"
+	
 	"fmt"
 	"strconv"
 	"bytes"
@@ -183,7 +183,7 @@ func (t *SimpleChaincode) add_ecert(stub shim.ChaincodeStubInterface, name strin
 
 func (t *SimpleChaincode) get_username(stub shim.ChaincodeStubInterface) (string, error) {
 
-    username, err := stub.ReadCertAttribute("username");
+    	username, err := stub.ReadCertAttribute("username");
 	if err != nil { return "", errors.New("Couldn't get attribute 'username'. Error: " + err.Error()) }
 	return string(username), nil
 }
