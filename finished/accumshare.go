@@ -36,6 +36,22 @@ import (
 
 var myLogger = logging.MustGetLogger("accum_share")
 
+const   MEDICAL      =  "medical"
+const   PHARMACY   =  "pharmacy"
+const   DENTAL =  "dental"
+
+
+type V5C_Holder struct {
+	V5Cs 	[]string `json:"v5cs"`
+}
+
+type User_and_eCert struct {
+	Identity string `json:"identity"`
+	eCert string `json:"ecert"`
+}
+
+
+
 type AccumShare struct {
 	Claims struct {
 		PolicyID string `json:"PolicyID"`
@@ -141,8 +157,66 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	return nil, nil
 }
 
+
+
+func (t *SimpleChaincode) get_ecert(stub shim.ChaincodeStubInterface, name string) ([]byte, error) {
+
+	ecert, err := stub.GetState(name)
+
+	if err != nil { return nil, errors.New("Couldn't retrieve ecert for user " + name) }
+
+	return ecert, nil
+}
+
+func (t *SimpleChaincode) add_ecert(stub shim.ChaincodeStubInterface, name string, ecert string) ([]byte, error) {
+
+
+	err := stub.PutState(name, []byte(ecert))
+
+	if err == nil {
+		return nil, errors.New("Error storing eCert for user " + name + " identity: " + ecert)
+	}
+
+	return nil, nil
+
+}
+
+func (t *SimpleChaincode) get_username(stub shim.ChaincodeStubInterface) (string, error) {
+
+    username, err := stub.ReadCertAttribute("username");
+	if err != nil { return "", errors.New("Couldn't get attribute 'username'. Error: " + err.Error()) }
+	return string(username), nil
+}
+
+func (t *SimpleChaincode) check_affiliation(stub shim.ChaincodeStubInterface) (string, error) {
+    affiliation, err := stub.ReadCertAttribute("role");
+	if err != nil { return "", errors.New("Couldn't get attribute 'role'. Error: " + err.Error()) }
+	return string(affiliation), nil
+
+}
+
+func (t *SimpleChaincode) get_caller_data(stub shim.ChaincodeStubInterface) (string, string, error){
+
+	user, err := t.get_username(stub)
+
+    // if err != nil { return "", "", err }
+
+	// ecert, err := t.get_ecert(stub, user);
+
+    // if err != nil { return "", "", err }
+
+	affiliation, err := t.check_affiliation(stub);
+
+    if err != nil { return "", "", err }
+
+	return user, affiliation, nil
+}
+
 func (t *SimpleChaincode) processClaim(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
+	
+	
+	
 	var err error
 	var DeductibleLimit int
 	var SubscriberIDValue, ClaimIDValue, TransactionIDValue, TransactionAmountValue, UoMValue, CreateDTTMValue, LastUpdateDTTMValue, AccumTypeValue, ParticipantValue string
@@ -343,6 +417,17 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 	/*if function != "query" {
 		return nil, errors.New("Invalid query function name. Expecting \"query\"")
 	}*/
+	
+	
+	caller, caller_affiliation, err := t.get_caller_data(stub)
+	if err != nil { fmt.Printf("QUERY: Error retrieving caller details", err); 
+		       return nil, errors.New("QUERY: Error retrieving caller details: "+err.Error()) 
+		      }
+	
+    	logger.Debug("function: ", function)
+    	logger.Debug("caller: ", caller)
+   	logger.Debug("affiliation: ", caller_affiliation)
+	
 	
 	if function == "queryAll" {
 		fmt.Println("Calling QueryAll()")
