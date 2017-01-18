@@ -29,6 +29,7 @@ import (
 	"bytes"
 	"log"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
+	"github.com/hyperledger/fabric/core/errors"
 	"encoding/json"	
 	"github.com/op/go-logging"
 )
@@ -509,6 +510,8 @@ func main() {
 	myLogger.Debugf("***********Accum Share*************")
 	err := shim.Start(new(SimpleChaincode))
 	if err != nil {
+		err = errors.ErrorWithCallStack(errors.Logging, errors.LoggingUnknownError, err.Error())
 		fmt.Printf("Error starting Simple chaincode: %s", err)
+		return nil, err
 	}
 }
