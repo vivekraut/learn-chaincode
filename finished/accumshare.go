@@ -456,7 +456,7 @@ func (t *AccumShareChaincode) Query(stub shim.ChaincodeStubInterface, function s
 	
 	//var err error
 	if len(args) != 1 {
-		err = ErrorWithCallstack(Utility, UtilityUnknownError, err.Error())
+		err = ErrorWithCallstack(Utility, UtilityUnknownError, "Utility Error")
 		return nil, err
 		//return nil, errors.New("Incorrect number of arguments. Expecting name of the person to query")
 	}
