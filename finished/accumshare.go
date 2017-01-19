@@ -454,7 +454,7 @@ func (t *AccumShareChaincode) Query(stub shim.ChaincodeStubInterface, function s
 	
 	var A string // Entities
 	
-	var err error
+	//var err error
 	if len(args) != 1 {
 		err = errors.ErrorWithCallStack(errors.Logging, errors.LoggingUnknownError, err.Error())
 		return nil, err
