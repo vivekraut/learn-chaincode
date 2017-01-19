@@ -601,6 +601,6 @@ func main() {
 	if err != nil {
 		//err = errors.ErrorWithCallStack(errors.Logging, errors.LoggingUnknownError, err.Error())
 		fmt.Printf("Error starting Simple chaincode: %s", err)
-		return nil, err
+		//return nil, err
 	}
 }
