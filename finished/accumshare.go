@@ -37,7 +37,7 @@ import (
 )
 
 //var myLogger = logging.MustGetLogger("accum_share")
-var myLogger = shim.NewLogger("CLDChaincode")
+var myLogger = shim.NewLogger("AccumShareChaincode")
 
 const   MEDICAL      =  "medical"
 const   PHARMACY   =  "pharmacy"
