@@ -25,5 +25,5 @@ const errorMapping string = `
     {"en":"An unknown error has occured"}
 
   }
-}
+}`
 
