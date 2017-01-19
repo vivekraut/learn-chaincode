@@ -28,8 +28,8 @@ import (
 	"strconv"
 	"bytes"
 	"log"
-	//"github.com/hyperledger/fabric/accesscontrol/crypto/attr"
-	//"github.com/hyperledger/fabric/accesscontrol/impl"
+	"github.com/hyperledger/fabric/accesscontrol/crypto/attr"
+	"github.com/hyperledger/fabric/accesscontrol/impl"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	//"github.com/hyperledger/fabric/core/errors"
 	"encoding/json"	
@@ -190,13 +190,13 @@ func (t *AccumShareChaincode) add_ecert(stub shim.ChaincodeStubInterface, name s
 
 func (t *AccumShareChaincode) get_username(stub shim.ChaincodeStubInterface) (string, error) {
 
-    	username, err := stub.ReadCertAttribute("username");
+    	username, err := impl.NewAccessControlShim(stub).ReadCertAttribute("username");
 	if err != nil { return "", errors.New("Couldn't get attribute 'username'. Error: " + err.Error()) }
 	return string(username), nil
 }
 
 func (t *AccumShareChaincode) check_affiliation(stub shim.ChaincodeStubInterface) (string, error) {
-    affiliation, err := stub.ReadCertAttribute("role");
+    affiliation, err := impl.NewAccessControlShim(stub).ReadCertAttribute("role");
 	if err != nil { return "", errors.New("Couldn't get attribute 'role'. Error: " + err.Error()) }
 	return string(affiliation), nil
 
