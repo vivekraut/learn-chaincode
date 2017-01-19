@@ -29,7 +29,7 @@ import (
 	"bytes"
 	"log"
 	//"github.com/hyperledger/fabric/accesscontrol/crypto/attr"
-	//"github.com/hyperledger/fabric/accesscontrol/impl"
+	"github.com/hyperledger/fabric/accesscontrol/impl"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	//"github.com/hyperledger/fabric/core/errors"
 	"encoding/json"	
@@ -166,7 +166,7 @@ func (t *AccumShareChaincode) Init(stub shim.ChaincodeStubInterface, function st
 }
 
 
-/*
+
 func (t *AccumShareChaincode) get_ecert(stub shim.ChaincodeStubInterface, name string) ([]byte, error) {
 
 	ecert, err := stub.GetState(name)
@@ -219,7 +219,7 @@ func (t *AccumShareChaincode) get_caller_data(stub shim.ChaincodeStubInterface) 
 
 	return user, affiliation, nil
 }
-*/
+
 func (t *AccumShareChaincode) processClaim(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
 	
@@ -428,7 +428,7 @@ func (t *AccumShareChaincode) Query(stub shim.ChaincodeStubInterface, function s
 	}*/
 	var err error
 	//function, args := stub.GetFunctionAndParameters()
-	/*
+	
 	caller, caller_affiliation, err := t.get_caller_data(stub)
 	if err != nil { fmt.Printf("QUERY: Error retrieving caller details", err); 
 		       return nil, errors.New("QUERY: Error retrieving caller details: "+err.Error()) 
@@ -437,7 +437,7 @@ func (t *AccumShareChaincode) Query(stub shim.ChaincodeStubInterface, function s
     	myLogger.Debug("function: ", function)
     	myLogger.Debug("caller: ", caller)
    	myLogger.Debug("affiliation: ", caller_affiliation)
-	*/
+	
 	
 	if function == "queryAll" {
 		fmt.Println("Calling QueryAll()")
