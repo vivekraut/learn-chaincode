@@ -29,7 +29,7 @@ import (
 	"bytes"
 	"log"
 	//"github.com/hyperledger/fabric/accesscontrol/crypto/attr"
-	"github.com/hyperledger/fabric/accesscontrol/impl"
+	//"github.com/hyperledger/fabric/accesscontrol/impl"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	//"github.com/hyperledger/fabric/core/errors"
 	"encoding/json"	
@@ -92,7 +92,7 @@ type AccumShare struct {
 type AccumShareChaincode struct {
 }
 
-func (t *AccumShareChaincode) Init(stub shim.ChaincodeStubInterface) ([]byte, error) {
+func (t *AccumShareChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	
 	
 	//var SubscriberID, PolicyID, PolicyStartDate, PolicyEndDate, PolicyType, DeductibleBalance, OOPBalance string    // Entities
@@ -104,7 +104,7 @@ func (t *AccumShareChaincode) Init(stub shim.ChaincodeStubInterface) ([]byte, er
 	
 	
 	// Initialize the chaincode
-	function, args := stub.GetFunctionAndParameters()
+	//function, args := stub.GetFunctionAndParameters()
 	if function == "init" {
 		// Deletes an entity from its state
 		fmt.Println("Inside Init-------------------------")
@@ -191,13 +191,13 @@ func (t *AccumShareChaincode) add_ecert(stub shim.ChaincodeStubInterface, name s
 
 func (t *AccumShareChaincode) get_username(stub shim.ChaincodeStubInterface) (string, error) {
 
-    	username, err := impl.NewAccessControlShim(stub).ReadCertAttribute("username");
+    	username, err := stub.ReadCertAttribute("username");
 	if err != nil { return "", errors.New("Couldn't get attribute 'username'. Error: " + err.Error()) }
 	return string(username), nil
 }
 
 func (t *AccumShareChaincode) check_affiliation(stub shim.ChaincodeStubInterface) (string, error) {
-    affiliation, err := impl.NewAccessControlShim(stub).ReadCertAttribute("role");
+    affiliation, err := stub.ReadCertAttribute("role");
 	if err != nil { return "", errors.New("Couldn't get attribute 'role'. Error: " + err.Error()) }
 	return string(affiliation), nil
 
@@ -386,8 +386,8 @@ func (t *AccumShareChaincode) write(stub shim.ChaincodeStubInterface, args []str
 }
 
 
-func (t *AccumShareChaincode) Invoke(stub shim.ChaincodeStubInterface) ([]byte, error) {
-	function, args := stub.GetFunctionAndParameters()
+func (t *AccumShareChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+	//function, args := stub.GetFunctionAndParameters()
 	if function == "delete" {
 		// Deletes an entity from its state
 		return t.delete(stub, args)
@@ -422,12 +422,12 @@ func (t *AccumShareChaincode) delete(stub shim.ChaincodeStubInterface, args []st
 }
 
 // Query callback representing the query of a chaincode
-func (t *AccumShareChaincode) Query(stub shim.ChaincodeStubInterface) ([]byte, error) {
+func (t *AccumShareChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	/*if function != "query" {
 		return nil, errors.New("Invalid query function name. Expecting \"query\"")
 	}*/
 	var err error
-	function, args := stub.GetFunctionAndParameters()
+	//function, args := stub.GetFunctionAndParameters()
 	
 	caller, caller_affiliation, err := t.get_caller_data(stub)
 	if err != nil { fmt.Printf("QUERY: Error retrieving caller details", err); 
