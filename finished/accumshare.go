@@ -104,6 +104,10 @@ func (t *AccumShareChaincode) Init(stub shim.ChaincodeStubInterface) ([]byte, er
 	
 	// Initialize the chaincode
 	function, args := stub.GetFunctionAndParameters()
+	if function == "init" {
+		// Deletes an entity from its state
+		fmt.Println("Inside Init-------------------------")
+	}
 	var SubscriberIDValue, PolicyIDValue, PolicyStartDateValue, PolicyEndDateValue, PolicyTypeValue, DeductibleBalanceValue, OOPBalanceValue string
 	
 	//SubscriberID = args[0]	
