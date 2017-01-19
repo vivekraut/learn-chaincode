@@ -92,7 +92,7 @@ type AccumShare struct {
 type AccumShareChaincode struct {
 }
 
-func (t *AccumShareChaincode) Init(stub shim.ChaincodeStubInterface) ([]byte, error) {
+func (t *AccumShareChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	
 	
 	//var SubscriberID, PolicyID, PolicyStartDate, PolicyEndDate, PolicyType, DeductibleBalance, OOPBalance string    // Entities
@@ -104,7 +104,7 @@ func (t *AccumShareChaincode) Init(stub shim.ChaincodeStubInterface) ([]byte, er
 	
 	
 	// Initialize the chaincode
-	function, args := stub.GetFunctionAndParameters()
+	//function, args := stub.GetFunctionAndParameters()
 	if function == "init" {
 		// Deletes an entity from its state
 		fmt.Println("Inside Init-------------------------")
@@ -386,8 +386,8 @@ func (t *AccumShareChaincode) write(stub shim.ChaincodeStubInterface, args []str
 }
 
 
-func (t *AccumShareChaincode) Invoke(stub shim.ChaincodeStubInterface) ([]byte, error) {
-	function, args := stub.GetFunctionAndParameters()
+func (t *AccumShareChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+	//function, args := stub.GetFunctionAndParameters()
 	if function == "delete" {
 		// Deletes an entity from its state
 		return t.delete(stub, args)
@@ -422,12 +422,12 @@ func (t *AccumShareChaincode) delete(stub shim.ChaincodeStubInterface, args []st
 }
 
 // Query callback representing the query of a chaincode
-func (t *AccumShareChaincode) Query(stub shim.ChaincodeStubInterface) ([]byte, error) {
+func (t *AccumShareChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	/*if function != "query" {
 		return nil, errors.New("Invalid query function name. Expecting \"query\"")
 	}*/
 	var err error
-	function, args := stub.GetFunctionAndParameters()
+	//function, args := stub.GetFunctionAndParameters()
 	/*
 	caller, caller_affiliation, err := t.get_caller_data(stub)
 	if err != nil { fmt.Printf("QUERY: Error retrieving caller details", err); 
