@@ -21,9 +21,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"runtime"
-
-	"github.com/hyperledger/fabric/common/flogging"
-	logging "github.com/op/go-logging"
+	"github.com/hyperledger/fabric/core/chaincode/shim"
+	//"github.com/hyperledger/fabric/common/flogging"
+	//logging "github.com/op/go-logging"
 )
 
 // MaxCallStackLength is the maximum length of the stored call stack
@@ -34,8 +34,8 @@ type ComponentCode string
 
 // ReasonCode for low level error description
 type ReasonCode string
-
-var errorLogger = logging.MustGetLogger("error")
+var errorLogger = shim.NewLogger("error")
+//var errorLogger = logging.MustGetLogger("error")
 
 // CallStackError is a general interface for
 // Fabric errors
