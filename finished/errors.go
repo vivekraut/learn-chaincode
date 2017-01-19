@@ -14,7 +14,7 @@
  limitations under the License.
 */
 
-package errors
+package main
 
 import (
 	"bytes"
@@ -22,8 +22,8 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/hyperledger/fabric/common/flogging"
-	logging "github.com/op/go-logging"
+	//"github.com/hyperledger/fabric/common/flogging"
+	//logging "github.com/op/go-logging"
 )
 
 // MaxCallStackLength is the maximum length of the stored call stack
@@ -34,8 +34,8 @@ type ComponentCode string
 
 // ReasonCode for low level error description
 type ReasonCode string
-
-var errorLogger = logging.MustGetLogger("error")
+var errorLogger = shim.NewLogger("error")
+//var errorLogger = logging.MustGetLogger("error")
 
 // CallStackError is a general interface for
 // Fabric errors
@@ -136,11 +136,12 @@ func (h *hlError) Message() string {
 	// initialize logging level for errors from core.yaml. it can also be set
 	// for code running on the peer dynamically via CLI using
 	// "peer logging setlevel error <log-level>"
+	/*logger.SetLevel(shim.LogError)
 	errorLogLevelString, _ := flogging.GetModuleLevel("error")
 	if errorLogLevelString == logging.DEBUG.String() {
 		messageWithCallStack := fmt.Sprintf(emap[fmt.Sprintf("%s", h.componentcode)][fmt.Sprintf("%s", h.reasoncode)][language], h.args...) + "\n" + h.GetStack()
 		return messageWithCallStack
-	}
+	}*/
 	return fmt.Sprintf(emap[fmt.Sprintf("%s", h.componentcode)][fmt.Sprintf("%s", h.reasoncode)][language], h.args...)
 }
 
