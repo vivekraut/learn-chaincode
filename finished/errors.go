@@ -21,7 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"runtime"
-
+	"github.com/hyperledger/fabric/core/chaincode/shim"
 	//"github.com/hyperledger/fabric/common/flogging"
 	//logging "github.com/op/go-logging"
 )
