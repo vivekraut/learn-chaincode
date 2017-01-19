@@ -91,11 +91,10 @@ type AccumShare struct {
 type AccumShareChaincode struct {
 }
 
-func (t *AccumShareChaincode) Init(stub shim.ChaincodeStubInterface) ([]byte, error) {
+func (t *AccumShareChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	
 	
 	//var SubscriberID, PolicyID, PolicyStartDate, PolicyEndDate, PolicyType, DeductibleBalance, OOPBalance string    // Entities
-	var SubscriberIDValue, PolicyIDValue, PolicyStartDateValue, PolicyEndDateValue, PolicyTypeValue, DeductibleBalanceValue, OOPBalanceValue string
 	//var err error
 
 	/*if len(args) != 4 {
@@ -104,6 +103,8 @@ func (t *AccumShareChaincode) Init(stub shim.ChaincodeStubInterface) ([]byte, er
 	
 	
 	// Initialize the chaincode
+	
+	var SubscriberIDValue, PolicyIDValue, PolicyStartDateValue, PolicyEndDateValue, PolicyTypeValue, DeductibleBalanceValue, OOPBalanceValue string
 	
 	//SubscriberID = args[0]	
 	SubscriberIDValue = args[1]
