@@ -33,10 +33,11 @@ import (
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	//"github.com/hyperledger/fabric/core/errors"
 	"encoding/json"	
-	"github.com/op/go-logging"
+	//"github.com/op/go-logging"
 )
 
-var myLogger = logging.MustGetLogger("accum_share")
+//var myLogger = logging.MustGetLogger("accum_share")
+var myLogger = shim.NewLogger("CLDChaincode")
 
 const   MEDICAL      =  "medical"
 const   PHARMACY   =  "pharmacy"
