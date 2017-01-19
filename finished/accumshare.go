@@ -28,7 +28,7 @@ import (
 	"strconv"
 	"bytes"
 	"log"
-	"github.com/hyperledger/fabric/accesscontrol/crypto/attr"
+	//"github.com/hyperledger/fabric/accesscontrol/crypto/attr"
 	"github.com/hyperledger/fabric/accesscontrol/impl"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	//"github.com/hyperledger/fabric/core/errors"
@@ -88,10 +88,10 @@ type AccumShare struct {
 
 
 // SimpleChaincode example simple Chaincode implementation
-type SimpleChaincode struct {
+type AccumShareChaincode struct {
 }
 
-func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (t *AccumShareChaincode) Init(stub shim.ChaincodeStubInterface) ([]byte, error) {
 	
 	
 	//var SubscriberID, PolicyID, PolicyStartDate, PolicyEndDate, PolicyType, DeductibleBalance, OOPBalance string    // Entities
@@ -161,7 +161,7 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 
 
 
-func (t *SimpleChaincode) get_ecert(stub shim.ChaincodeStubInterface, name string) ([]byte, error) {
+func (t *AccumShareChaincode) get_ecert(stub shim.ChaincodeStubInterface, name string) ([]byte, error) {
 
 	ecert, err := stub.GetState(name)
 
@@ -170,7 +170,7 @@ func (t *SimpleChaincode) get_ecert(stub shim.ChaincodeStubInterface, name strin
 	return ecert, nil
 }
 
-func (t *SimpleChaincode) add_ecert(stub shim.ChaincodeStubInterface, name string, ecert string) ([]byte, error) {
+func (t *AccumShareChaincode) add_ecert(stub shim.ChaincodeStubInterface, name string, ecert string) ([]byte, error) {
 
 
 	err := stub.PutState(name, []byte(ecert))
@@ -183,21 +183,21 @@ func (t *SimpleChaincode) add_ecert(stub shim.ChaincodeStubInterface, name strin
 
 }
 
-func (t *SimpleChaincode) get_username(stub shim.ChaincodeStubInterface) (string, error) {
+func (t *AccumShareChaincode) get_username(stub shim.ChaincodeStubInterface) (string, error) {
 
     	username, err := impl.NewAccessControlShim(stub).ReadCertAttribute("username");
 	if err != nil { return "", errors.New("Couldn't get attribute 'username'. Error: " + err.Error()) }
 	return string(username), nil
 }
 
-func (t *SimpleChaincode) check_affiliation(stub shim.ChaincodeStubInterface) (string, error) {
+func (t *AccumShareChaincode) check_affiliation(stub shim.ChaincodeStubInterface) (string, error) {
     affiliation, err := impl.NewAccessControlShim(stub).ReadCertAttribute("role");
 	if err != nil { return "", errors.New("Couldn't get attribute 'role'. Error: " + err.Error()) }
 	return string(affiliation), nil
 
 }
 
-func (t *SimpleChaincode) get_caller_data(stub shim.ChaincodeStubInterface) (string, string, error){
+func (t *AccumShareChaincode) get_caller_data(stub shim.ChaincodeStubInterface) (string, string, error){
 
 	user, err := t.get_username(stub)
 
@@ -214,7 +214,7 @@ func (t *SimpleChaincode) get_caller_data(stub shim.ChaincodeStubInterface) (str
 	return user, affiliation, nil
 }
 
-func (t *SimpleChaincode) processClaim(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (t *AccumShareChaincode) processClaim(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
 	
 	
@@ -316,7 +316,7 @@ func (t *SimpleChaincode) processClaim(stub shim.ChaincodeStubInterface, args []
 }
 
 
-func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (t *AccumShareChaincode) write(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
     var key, value string	
     //var err error
     fmt.Println("Storing the parameters in hyperledger fabric...")
@@ -380,7 +380,7 @@ func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string)
 }
 
 
-func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (t *AccumShareChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	if function == "delete" {
 		// Deletes an entity from its state
 		return t.delete(stub, args)
@@ -398,7 +398,7 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 }
 
 // Deletes an entity from state
-func (t *SimpleChaincode) delete(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (t *AccumShareChaincode) delete(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	if len(args) != 1 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 1")
 	}
@@ -415,20 +415,20 @@ func (t *SimpleChaincode) delete(stub shim.ChaincodeStubInterface, args []string
 }
 
 // Query callback representing the query of a chaincode
-func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (t *AccumShareChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	/*if function != "query" {
 		return nil, errors.New("Invalid query function name. Expecting \"query\"")
 	}*/
-	
+	//var err error
 	
 	caller, caller_affiliation, err := t.get_caller_data(stub)
 	if err != nil { fmt.Printf("QUERY: Error retrieving caller details", err); 
 		       return nil, errors.New("QUERY: Error retrieving caller details: "+err.Error()) 
 		      }
 	
-    	logger.Debug("function: ", function)
-    	logger.Debug("caller: ", caller)
-   	logger.Debug("affiliation: ", caller_affiliation)
+    	myLogger.Debug("function: ", function)
+    	myLogger.Debug("caller: ", caller)
+   	myLogger.Debug("affiliation: ", caller_affiliation)
 	
 	
 	if function == "queryAll" {
@@ -442,7 +442,7 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
     }
 	
 	var A string // Entities
-	var err error
+	
 
 	if len(args) != 1 {
 		return nil, errors.New("Incorrect number of arguments. Expecting name of the person to query")
@@ -473,7 +473,7 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 
 
 // Query callback representing the query of a chaincode
-func (t *SimpleChaincode) queryAll(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (t *AccumShareChaincode) queryAll(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 		
 	//var A string // Entities
 	//var err error
@@ -536,7 +536,7 @@ func (t *SimpleChaincode) queryAll(stub shim.ChaincodeStubInterface, args []stri
 
 
 // Query callback representing the query of a chaincode
-func (t *SimpleChaincode) queryTransact(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (t *AccumShareChaincode) queryTransact(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 		
 	//var A string // Entities
 	//var err error
@@ -595,9 +595,9 @@ func (t *SimpleChaincode) queryTransact(stub shim.ChaincodeStubInterface, args [
 
 func main() {
 	myLogger.Debugf("***********Accum Share*************")
-	err := shim.Start(new(SimpleChaincode))
+	err := shim.Start(new(AccumShareChaincode))
 	if err != nil {
-		err = errors.ErrorWithCallStack(errors.Logging, errors.LoggingUnknownError, err.Error())
+		//err = errors.ErrorWithCallStack(errors.Logging, errors.LoggingUnknownError, err.Error())
 		fmt.Printf("Error starting Simple chaincode: %s", err)
 		return nil, err
 	}
