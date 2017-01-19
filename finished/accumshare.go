@@ -33,7 +33,7 @@ import (
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	//"github.com/hyperledger/fabric/core/errors"
 	"encoding/json"	
-	//"github.com/op/go-logging"
+	"github.com/op/go-logging"
 )
 
 var myLogger = logging.MustGetLogger("accum_share")
@@ -425,8 +425,9 @@ func (t *AccumShareChaincode) Query(stub shim.ChaincodeStubInterface) ([]byte, e
 	/*if function != "query" {
 		return nil, errors.New("Invalid query function name. Expecting \"query\"")
 	}*/
-	//var err error
+	var err error
 	function, args := stub.GetFunctionAndParameters()
+	/*
 	caller, caller_affiliation, err := t.get_caller_data(stub)
 	if err != nil { fmt.Printf("QUERY: Error retrieving caller details", err); 
 		       return nil, errors.New("QUERY: Error retrieving caller details: "+err.Error()) 
@@ -435,7 +436,7 @@ func (t *AccumShareChaincode) Query(stub shim.ChaincodeStubInterface) ([]byte, e
     	myLogger.Debug("function: ", function)
     	myLogger.Debug("caller: ", caller)
    	myLogger.Debug("affiliation: ", caller_affiliation)
-	
+	*/
 	
 	if function == "queryAll" {
 		fmt.Println("Calling QueryAll()")
