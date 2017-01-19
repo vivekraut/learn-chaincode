@@ -190,14 +190,17 @@ func (t *AccumShareChaincode) add_ecert(stub shim.ChaincodeStubInterface, name s
 }
 
 func (t *AccumShareChaincode) get_username(stub shim.ChaincodeStubInterface) (string, error) {
-
+	myLogger.Debugf("Getting Username")
     	username, err := stub.ReadCertAttribute("username");
+	myLogger.Debug("username: ", username)
 	if err != nil { return "", errors.New("Couldn't get attribute 'username'. Error: " + err.Error()) }
 	return string(username), nil
 }
 
 func (t *AccumShareChaincode) check_affiliation(stub shim.ChaincodeStubInterface) (string, error) {
-    affiliation, err := stub.ReadCertAttribute("role");
+	myLogger.Debugf("Getting Role")
+    	affiliation, err := stub.ReadCertAttribute("role");
+	myLogger.Debug("affiliation: ", affiliation)
 	if err != nil { return "", errors.New("Couldn't get attribute 'role'. Error: " + err.Error()) }
 	return string(affiliation), nil
 
