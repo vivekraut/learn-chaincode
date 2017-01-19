@@ -2,9 +2,9 @@ package main
 
 
 const (
-  //Utility ComponentCode = "Utility"
+  Utility ComponentCode = "Utility"
   Logging ComponentCode = "Logging"
-  //Peer ComponentCode = "Peer"
+  Peer ComponentCode = "Peer"
   
 )
 
@@ -15,6 +15,11 @@ const (
 
 const errorMapping string = `
 {
+"Utility":
+  {"UtilityUnknownError" :
+    {"en":"An unknown error has occured"}
+
+  }
 "Logging":
   {"LoggingUnknownError" :
     {"en":"An unknown error has occured"}
