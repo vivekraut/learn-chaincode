@@ -430,8 +430,8 @@ func (t *AccumShareChaincode) Query(stub shim.ChaincodeStubInterface, function s
 		return nil, errors.New("Invalid query function name. Expecting \"query\"")
 	}*/
 	var err error
-	//function, args := stub.GetFunctionAndParameters()
-	/*
+	function, args := stub.GetFunctionAndParameters()
+	
 	caller, caller_affiliation, err := t.get_caller_data(stub)
 	if err != nil { fmt.Printf("QUERY: Error retrieving caller details", err); 
 		       return nil, errors.New("QUERY: Error retrieving caller details: "+err.Error()) 
@@ -440,7 +440,7 @@ func (t *AccumShareChaincode) Query(stub shim.ChaincodeStubInterface, function s
     	myLogger.Debug("function: ", function)
     	myLogger.Debug("caller: ", caller)
    	myLogger.Debug("affiliation: ", caller_affiliation)
-	*/
+	
 	
 	if function == "queryAll" {
 		fmt.Println("Calling QueryAll()")
