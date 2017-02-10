@@ -199,7 +199,7 @@ func (t *AccumShareChaincode) get_username(stub shim.ChaincodeStubInterface) (st
 
 func (t *AccumShareChaincode) check_affiliation(stub shim.ChaincodeStubInterface) (string, error) {
 	myLogger.Debugf("Getting Role")
-    	affiliation, err := stub.ReadCertAttribute("role");
+    	affiliation, err := stub.ReadCertAttribute("affiliation");
 	myLogger.Debug("affiliation: ", affiliation)
 	if err != nil { return "", errors.New("Couldn't get attribute 'role'. Error: " + err.Error()) }
 	return string(affiliation), nil
