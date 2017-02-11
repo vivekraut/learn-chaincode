@@ -30,7 +30,7 @@ import (
 	"log"
 	"encoding/base64"
 	//"github.com/hyperledger/fabric/accesscontrol/crypto/attr"
-	//"github.com/hyperledger/fabric/accesscontrol/impl"
+	"github.com/hyperledger/fabric/accesscontrol/impl"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	//"github.com/hyperledger/fabric/core/errors"
 	"encoding/json"	
@@ -261,15 +261,15 @@ func (t *AccumShareChaincode) processClaim(stub shim.ChaincodeStubInterface, arg
 	
 	sigma, err5 := stub.GetCallerMetadata()
 	if err5 != nil {
-		return false, errors.New("Failed getting metadata")
+		return nil, errors.New("Failed getting metadata")
 	}
 	payload, err5 := stub.GetPayload()
 	if err5 != nil {
-		return false, errors.New("Failed getting payload")
+		return nil, errors.New("Failed getting payload")
 	}
 	binding, err5 := stub.GetBinding()
 	if err5 != nil {
-		return false, errors.New("Failed getting binding")
+		return nil, errors.New("Failed getting binding")
 	}
 
 	myLogger.Debugf("passed certificate [% x]", certificate)
