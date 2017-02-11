@@ -257,8 +257,8 @@ func (t *AccumShareChaincode) processClaim(stub shim.ChaincodeStubInterface, arg
 	}
 	
 	caller, caller_affiliation, err4 := t.get_caller_data(stub)
-	if err4 != nil { fmt.Printf("QUERY: Error retrieving caller details", err); 
-		       return nil, errors.New("QUERY: Error retrieving caller details: "+err.Error()) 
+	if err4 != nil { fmt.Printf("QUERY: Error retrieving caller details", err4); 
+		       return nil, errors.New("QUERY: Error retrieving caller details: "+err4.Error()) 
 		      }
 	
     	//myLogger.Debug("function: ", function)
