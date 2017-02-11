@@ -246,12 +246,12 @@ func (t *AccumShareChaincode) processClaim(stub shim.ChaincodeStubInterface, arg
 	//asset := args[18]
 	owner, err1 := base64.StdEncoding.DecodeString(args[18])
 	if err1 != nil {
-		jsonResp := "{\"Error\":\"Failed to get state " "\"}"
-		return nil, errors.New(jsonResp)
+		//jsonResp := "{\"Error\":\"Failed to get state " "\"}"
+		return nil, errors.New("Failed to get owner state")
 	}
 	
-	adminCertificate, err := stub.GetState("user_type1_1")
-	if err != nil {
+	adminCertificate, err3 := stub.GetState("user_type1_1")
+	if err3 != nil {
 		return nil, errors.New("Failed fetching admin identity")
 	}
 
