@@ -14,249 +14,88 @@ limitations under the License.
 package main
 
 import (
-	"encoding/base64"
-	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/hyperledger/fabric/accesscontrol/impl"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
-	"github.com/hyperledger/fabric/core/crypto/primitives"
 	pb "github.com/hyperledger/fabric/protos/peer"
-	"github.com/op/go-logging"
 )
 
-var myLogger = logging.MustGetLogger("asset_mgmt")
-
-// AssetManagementChaincode is simple chaincode implementing a basic Asset Management system
-// with access control enforcement at chaincode level.
-// Look here for more information on how to implement access control at chaincode level:
-// https://github.com/hyperledger/fabric/blob/master/docs/tech/application-ACL.md
-// An asset is simply represented by a string.
-type AssetManagementChaincode struct {
+// AuthorizableCounterChaincode is an example that use Attribute Based Access Control to control the access to a counter by users with an specific role.
+// In this case only users which TCerts contains the attribute position with the value "Software Engineer" will be able to increment the counter.
+type AuthorizableCounterChaincode struct {
 }
 
-// Init method will be called during deployment.
-// The deploy transaction metadata is supposed to contain the administrator cert
-func (t *AssetManagementChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
-	_, args := stub.GetFunctionAndParameters()
-	myLogger.Debug("Init Chaincode...")
-	if len(args) != 0 {
-		return shim.Error("Incorrect number of arguments. Expecting 0")
-	}
-
-	// Set the admin
-	// The metadata will contain the certificate of the administrator
-	adminCert, err := stub.GetCallerMetadata()
+//Init the chaincode asigned the value "0" to the counter in the state.
+func (t *AuthorizableCounterChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
+	err := stub.PutState("counter", []byte("0"))
 	if err != nil {
-		myLogger.Debug("Failed getting metadata")
-		return shim.Error("Failed getting metadata.")
+		return shim.Error(err.Error())
 	}
-	if len(adminCert) == 0 {
-		myLogger.Debug("Invalid admin certificate. Empty.")
-		return shim.Error("Invalid admin certificate. Empty.")
-	}
-
-	myLogger.Debug("The administrator is [%x]", adminCert)
-
-	stub.PutState("admin", adminCert)
-
-	myLogger.Debug("Init Chaincode...done")
 
 	return shim.Success(nil)
 }
 
-func (t *AssetManagementChaincode) assign(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	myLogger.Debug("Assign...")
-
-	if len(args) != 2 {
-		return shim.Error("Incorrect number of arguments. Expecting 2")
+//Invoke makes increment counter
+func (t *AuthorizableCounterChaincode) increment(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	val, err := impl.NewAccessControlShim(stub).ReadCertAttribute("position")
+	fmt.Printf("Position => %v error %v \n", string(val), err)
+	isOk, _ := impl.NewAccessControlShim(stub).VerifyAttribute("position", []byte("Software Engineer")) // Here the ABAC API is called to verify the attribute, just if the value is verified the counter will be incremented.
+	if isOk {
+		counter, err := stub.GetState("counter")
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+		var cInt int
+		cInt, err = strconv.Atoi(string(counter))
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+		cInt = cInt + 1
+		counter = []byte(strconv.Itoa(cInt))
+		stub.PutState("counter", counter)
 	}
-
-	asset := args[0]
-	owner, err := base64.StdEncoding.DecodeString(args[1])
-	if err != nil {
-		return shim.Error("Failed decodinf owner")
-	}
-
-	// Verify the identity of the caller
-	// Only an administrator can invoker assign
-	adminCertificate, err := stub.GetState("admin")
-	if err != nil {
-		return shim.Error("Failed fetching admin identity")
-	}
-
-	ok, err := t.isCaller(stub, adminCertificate)
-	if err != nil {
-		return shim.Error("Failed checking admin identity")
-	}
-	if !ok {
-		return shim.Error("The caller is not an administrator")
-	}
-
-	currentOwner, err := stub.GetState(asset)
-	if len(currentOwner) > 0 && err == nil {
-		return shim.Error("Asset was already assigned.")
-	}
-
-	// Register assignment
-	myLogger.Debugf("New owner of [%s] is [% x]", asset, owner)
-	err = stub.PutState(asset, owner)
-
-	myLogger.Debug("Assign...done!")
-
 	return shim.Success(nil)
 }
 
-func (t *AssetManagementChaincode) transfer(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	myLogger.Debug("Transfer...")
-
-	if len(args) != 2 {
-		return shim.Error("Incorrect number of arguments. Expecting 2")
-	}
-
-	asset := args[0]
-	newOwner, err := base64.StdEncoding.DecodeString(args[1])
-	if err != nil {
-		return shim.Error("Failed decoding owner")
-	}
-
-	// Verify the identity of the caller
-	// Only the owner can transfer one of his assets
-	prvOwner, err := stub.GetState(asset)
-	if err != nil {
-		return shim.Error(fmt.Sprintf("Failed retrieving asset [%s]: [%s]", asset, err))
-	}
-
-	myLogger.Debugf("Previous owener of [%s] is [% x]", asset, prvOwner)
-	if len(prvOwner) == 0 {
-		return shim.Error("Invalid previous owner. Nil")
-	}
-
-	// Verify ownership
-	ok, err := t.isCaller(stub, prvOwner)
-	if err != nil {
-		return shim.Error("Failed checking asset owner identity")
-	}
-	if !ok {
-		return shim.Error("The caller is not the owner of the asset")
-	}
-
-	// At this point, the proof of ownership is valid, then register transfer
-	err = stub.PutState(asset, newOwner)
-	if err != nil {
-		return shim.Error("Failed inserting row.")
-	}
-
-	myLogger.Debug("New owner of [%s] is [% x]", asset, newOwner)
-
-	myLogger.Debug("Transfer...done")
-
-	return shim.Success(nil)
-}
-
-func (t *AssetManagementChaincode) isCaller(stub shim.ChaincodeStubInterface, certificate []byte) (bool, error) {
-	myLogger.Debug("Check caller...")
-
-	// In order to enforce access control, we require that the
-	// metadata contains the signature under the signing key corresponding
-	// to the verification key inside certificate of
-	// the payload of the transaction (namely, function name and args) and
-	// the transaction binding (to avoid copying attacks)
-
-	// Verify \sigma=Sign(certificate.sk, tx.Payload||tx.Binding) against certificate.vk
-	// \sigma is in the metadata
-
-	sigma, err := stub.GetCallerMetadata()
-	if err != nil {
-		return false, errors.New("Failed getting metadata")
-	}
-	payload, err := stub.GetPayload()
-	if err != nil {
-		return false, errors.New("Failed getting payload")
-	}
-	binding, err := stub.GetBinding()
-	if err != nil {
-		return false, errors.New("Failed getting binding")
-	}
-
-	myLogger.Debugf("passed certificate [% x]", certificate)
-	myLogger.Debugf("passed sigma [% x]", sigma)
-	myLogger.Debugf("passed payload [% x]", payload)
-	myLogger.Debugf("passed binding [% x]", binding)
-
-	ok, err := impl.NewAccessControlShim(stub).VerifySignature(
-		certificate,
-		sigma,
-		append(payload, binding...),
-	)
-	if err != nil {
-		myLogger.Errorf("Failed checking signature [%s]", err)
-		return ok, err
-	}
-	if !ok {
-		myLogger.Error("Invalid signature")
-	}
-
-	myLogger.Debug("Check caller...Verified!")
-
-	return ok, err
-}
-
-// Invoke will be called for every transaction.
-// Supported functions are the following:
-// "assign(asset, owner)": to assign ownership of assets. An asset can be owned by a single entity.
-// Only an administrator can call this function.
-// "transfer(asset, newOwner)": to transfer the ownership of an asset. Only the owner of the specific
-// asset can call this function.
-// An asset is any string to identify it. An owner is representated by one of his ECert/TCert.
-func (t *AssetManagementChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
-	function, args := stub.GetFunctionAndParameters()
-	// Handle different functions
-	if function == "assign" {
-		// Assign ownership
-		return t.assign(stub, args)
-	} else if function == "transfer" {
-		// Transfer ownership
-		return t.transfer(stub, args)
-	} else if function == "query" {
-		// Query owner
-		return t.query(stub, args)
-	}
-
-	return shim.Error("Received unknown function invocation")
-}
-
-// Supported functions are the following:
-// "query(asset)": returns the owner of the asset.
-// Anyone can invoke this function.
-func (t *AssetManagementChaincode) query(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *AuthorizableCounterChaincode) read(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	var err error
 
-	if len(args) != 1 {
-		myLogger.Debug("Incorrect number of arguments. Expecting name of an asset to query")
-		return shim.Error("Incorrect number of arguments. Expecting name of an asset to query")
-	}
-
-	// Who is the owner of the asset?
-	asset := args[0]
-
-	myLogger.Debugf("Query [%s]", string(asset))
-
-	owner, err := stub.GetState(asset)
+	// Get the state from the ledger
+	Avalbytes, err := stub.GetState("counter")
 	if err != nil {
-		myLogger.Debugf("Failed retriving asset [%s]: [%s]", string(asset), err)
-		return shim.Error(fmt.Sprintf("Failed retriving asset [%s]: [%s]", string(asset), err))
+		jsonResp := "{\"Error\":\"Failed to get state for counter\"}"
+		return shim.Error(jsonResp)
 	}
 
-	myLogger.Debugf("Query done [% x]", owner)
+	if Avalbytes == nil {
+		jsonResp := "{\"Error\":\"Nil amount for counter\"}"
+		return shim.Error(jsonResp)
+	}
 
-	return shim.Success([]byte(base64.StdEncoding.EncodeToString(owner)))
+	jsonResp := "{\"Name\":\"counter\",\"Amount\":\"" + string(Avalbytes) + "\"}"
+	fmt.Printf("Query Response:%s\n", jsonResp)
+	return shim.Success(Avalbytes)
+}
+
+// Invoke  method is the interceptor of all invocation transactions, its job is to direct
+// invocation transactions to intended APIs
+func (t *AuthorizableCounterChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
+	function, args := stub.GetFunctionAndParameters()
+
+	//	 Handle different functions
+	if function == "increment" {
+		return t.increment(stub, args)
+	} else if function == "read" {
+		return t.read(stub, args)
+	}
+	return shim.Error("Received unknown function invocation, Expecting \"increment\" \"read\"")
 }
 
 func main() {
-	primitives.SetSecurityLevel("SHA3", 256)
-	err := shim.Start(new(AssetManagementChaincode))
+	err := shim.Start(new(AuthorizableCounterChaincode))
 	if err != nil {
-		fmt.Printf("Error starting AssetManagementChaincode: %s", err)
+		fmt.Printf("Error starting Simple chaincode: %s", err)
 	}
 }
