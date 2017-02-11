@@ -103,6 +103,23 @@ func (t *AccumShareChaincode) Init(stub shim.ChaincodeStubInterface, function st
 	}*/
 	
 	
+	user11Cert, err1 := stub.GetCallerMetadata()
+	if err1 != nil {
+		myLogger.Debug("Failed getting metadata")
+		return shim.Error("Failed getting metadata.")
+	}
+	if len(user11Cert) == 0 {
+		myLogger.Debug("Invalid user11Cert certificate. Empty.")
+		return shim.Error("Invalid user11Cert certificate. Empty.")
+	}
+
+	myLogger.Debug("The administrator is [%x]", user11Cert)
+
+	stub.PutState("user_type1_1", user11Cert)
+
+	myLogger.Debug("Init Chaincode...done")
+	
+	
 	// Initialize the chaincode
 	//function, args := stub.GetFunctionAndParameters()
 	if function == "init" {
