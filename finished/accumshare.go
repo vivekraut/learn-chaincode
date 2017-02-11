@@ -243,7 +243,32 @@ func (t *AccumShareChaincode) get_caller_data(stub shim.ChaincodeStubInterface) 
 func (t *AccumShareChaincode) processClaim(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
 	
+	//asset := args[18]
+	owner, err1 := base64.StdEncoding.DecodeString(args[18])
+	if err1 != nil {
+		jsonResp := "{\"Error\":\"Failed to get state " "\"}"
+		return nil, errors.New(jsonResp)
+	}
 	
+	adminCertificate, err := stub.GetState("user_type1_1")
+	if err != nil {
+		return nil, errors.New("Failed fetching admin identity")
+	}
+
+	ok, err2 := t.isCaller(stub, adminCertificate)
+	if err2 != nil {
+		return nil, errors.New("Failed checking admin identity")
+	}
+	if !ok {
+		return nil, errors.New("The caller is not an administrator")
+	}
+
+	myLogger.Debugf("New owner of [%s] is [% x]", owner)
+	//err = stub.PutState(asset, owner)
+	myLogger.Debug("Assign...done!")
+	
+	
+
 	
 	var err error
 	var DeductibleLimit int
