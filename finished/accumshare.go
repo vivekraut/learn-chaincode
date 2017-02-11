@@ -93,6 +93,38 @@ type AccumShare struct {
 type AccumShareChaincode struct {
 }
 
+func (t *AccumShareChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response{
+	
+	_, args := stub.GetFunctionAndParameters()
+	myLogger.Debug("Init Chaincode...")
+	if len(args) != 0 {
+		return shim.Error("Incorrect number of arguments. Expecting 0")
+	}
+
+	// Set the admin
+	// The metadata will contain the certificate of the administrator
+	adminCert, err := stub.GetCallerMetadata()
+	if err != nil {
+		myLogger.Debug("Failed getting metadata")
+		return shim.Error("Failed getting metadata.")
+	}
+	if len(adminCert) == 0 {
+		myLogger.Debug("Invalid admin certificate. Empty.")
+		return shim.Error("Invalid admin certificate. Empty.")
+	}
+
+	myLogger.Debug("The administrator is [%x]", adminCert)
+
+	stub.PutState("user_type1_1", adminCert)
+
+	myLogger.Debug("Init Chaincode...done")
+
+	return shim.Success(nil)
+	
+	
+}
+
+/*
 func (t *AccumShareChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	
 	
@@ -182,9 +214,9 @@ func (t *AccumShareChaincode) Init(stub shim.ChaincodeStubInterface, function st
 	
 	return nil, nil
 }
+*/
 
-
-
+/*
 func (t *AccumShareChaincode) get_ecert(stub shim.ChaincodeStubInterface, name string) ([]byte, error) {
 
 	ecert, err := stub.GetState(name)
@@ -240,7 +272,7 @@ func (t *AccumShareChaincode) get_caller_data(stub shim.ChaincodeStubInterface) 
 
 	return user, affiliation, nil
 }
-
+*/
 func (t *AccumShareChaincode) processClaim(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
 	
@@ -698,6 +730,7 @@ func (t *AccumShareChaincode) queryTransact(stub shim.ChaincodeStubInterface, ar
 
 func main() {
 	myLogger.Debugf("***********Accum Share*************")
+	primitives.SetSecurityLevel("SHA3", 256)
 	err := shim.Start(new(AccumShareChaincode))
 	if err != nil {
 		//err = errors.ErrorWithCallStack(errors.Logging, errors.LoggingUnknownError, err.Error())
