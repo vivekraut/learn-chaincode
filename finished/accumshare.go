@@ -272,19 +272,19 @@ func (t *AccumShareChaincode) processClaim(stub shim.ChaincodeStubInterface, arg
 		return nil, errors.New("Failed getting binding")
 	}
 
-	myLogger.Debugf("passed certificate [% x]", certificate)
+	myLogger.Debugf("passed certificate [% x]", adminCertificate)
 	myLogger.Debugf("passed sigma [% x]", sigma)
 	myLogger.Debugf("passed payload [% x]", payload)
 	myLogger.Debugf("passed binding [% x]", binding)
 	
 	ok, err5 := impl.NewAccessControlShim(stub).VerifySignature(
-		certificate,
+		adminCertificate,
 		sigma,
 		append(payload, binding...),
 	)
 	if err5 != nil {
 		myLogger.Errorf("Failed checking signature [%s]", err5)
-		return ok, err5
+		return nil, err5
 	}
 	if !ok {
 		myLogger.Error("Invalid signature")
