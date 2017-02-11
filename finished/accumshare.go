@@ -32,6 +32,8 @@ import (
 	//"github.com/hyperledger/fabric/accesscontrol/crypto/attr"
 	"github.com/hyperledger/fabric/accesscontrol/impl"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
+	"github.com/hyperledger/fabric/core/crypto/primitives"
+	pb "github.com/hyperledger/fabric/protos/peer"
 	//"github.com/hyperledger/fabric/core/errors"
 	"encoding/json"	
 	//"github.com/op/go-logging"
@@ -553,7 +555,7 @@ func (t *AccumShareChaincode) Query(stub shim.ChaincodeStubInterface, function s
 	}*/
 	var err error
 	//function, args := stub.GetFunctionAndParameters()
-	
+	/*
 	caller, caller_affiliation, err := t.get_caller_data(stub)
 	if err != nil { fmt.Printf("QUERY: Error retrieving caller details", err); 
 		       return nil, errors.New("QUERY: Error retrieving caller details: "+err.Error()) 
@@ -562,7 +564,7 @@ func (t *AccumShareChaincode) Query(stub shim.ChaincodeStubInterface, function s
     	myLogger.Debug("function: ", function)
     	myLogger.Debug("caller: ", caller)
    	myLogger.Debug("affiliation: ", caller_affiliation)
-	
+	*/
 	
 	if function == "queryAll" {
 		fmt.Println("Calling QueryAll()")
