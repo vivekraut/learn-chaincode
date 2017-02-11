@@ -275,7 +275,7 @@ func (t *AccumShareChaincode) get_caller_data(stub shim.ChaincodeStubInterface) 
 	return user, affiliation, nil
 }
 */
-func (t *AccumShareChaincode) processClaim(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (t *AccumShareChaincode) processClaim(stub shim.ChaincodeStubInterface, args []string) pb.Response  {
 
 	
 	//asset := args[18]
@@ -449,7 +449,7 @@ func (t *AccumShareChaincode) processClaim(stub shim.ChaincodeStubInterface, arg
 }
 
 
-func (t *AccumShareChaincode) write(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (t *AccumShareChaincode) write(stub shim.ChaincodeStubInterface, args []string) pb.Response  {
     var key, value string	
     //var err error
     fmt.Println("Storing the parameters in hyperledger fabric...")
@@ -513,7 +513,7 @@ func (t *AccumShareChaincode) write(stub shim.ChaincodeStubInterface, args []str
 }
 
 
-func (t *AccumShareChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (t *AccumShareChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) pb.Response  {
 	//function, args := stub.GetFunctionAndParameters()
 	if function == "delete" {
 		// Deletes an entity from its state
@@ -549,7 +549,7 @@ func (t *AccumShareChaincode) delete(stub shim.ChaincodeStubInterface, args []st
 }
 
 // Query callback representing the query of a chaincode
-func (t *AccumShareChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (t *AccumShareChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) pb.Response  {
 	/*if function != "query" {
 		return nil, errors.New("Invalid query function name. Expecting \"query\"")
 	}*/
@@ -610,7 +610,7 @@ func (t *AccumShareChaincode) Query(stub shim.ChaincodeStubInterface, function s
 
 
 // Query callback representing the query of a chaincode
-func (t *AccumShareChaincode) queryAll(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (t *AccumShareChaincode) queryAll(stub shim.ChaincodeStubInterface, args []string) pb.Response  {
 		
 	//var A string // Entities
 	//var err error
@@ -673,7 +673,7 @@ func (t *AccumShareChaincode) queryAll(stub shim.ChaincodeStubInterface, args []
 
 
 // Query callback representing the query of a chaincode
-func (t *AccumShareChaincode) queryTransact(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (t *AccumShareChaincode) queryTransact(stub shim.ChaincodeStubInterface, args []string) pb.Response  {
 		
 	//var A string // Entities
 	//var err error
