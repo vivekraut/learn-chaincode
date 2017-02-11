@@ -255,6 +255,8 @@ func (t *AccumShareChaincode) processClaim(stub shim.ChaincodeStubInterface, arg
 	if err3 != nil {
 		return nil, errors.New("Failed fetching admin identity")
 	}
+	myLogger.Debugf("admin certificate value from ledger", adminCertificate)
+	
 	
 	caller, caller_affiliation, err4 := t.get_caller_data(stub)
 	if err4 != nil { fmt.Printf("QUERY: Error retrieving caller details", err4); 
