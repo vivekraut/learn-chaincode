@@ -28,6 +28,7 @@ import (
 	"strconv"
 	"bytes"
 	"log"
+	"encoding/base64"
 	//"github.com/hyperledger/fabric/accesscontrol/crypto/attr"
 	//"github.com/hyperledger/fabric/accesscontrol/impl"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
@@ -254,7 +255,16 @@ func (t *AccumShareChaincode) processClaim(stub shim.ChaincodeStubInterface, arg
 	if err3 != nil {
 		return nil, errors.New("Failed fetching admin identity")
 	}
-
+	
+	caller, caller_affiliation, err4 := t.get_caller_data(stub)
+	if err4 != nil { fmt.Printf("QUERY: Error retrieving caller details", err); 
+		       return nil, errors.New("QUERY: Error retrieving caller details: "+err.Error()) 
+		      }
+	
+    	//myLogger.Debug("function: ", function)
+    	myLogger.Debug("caller: ", caller)
+   	myLogger.Debug("affiliation: ", caller_affiliation)
+	/*
 	ok, err2 := t.isCaller(stub, adminCertificate)
 	if err2 != nil {
 		return nil, errors.New("Failed checking admin identity")
@@ -262,6 +272,7 @@ func (t *AccumShareChaincode) processClaim(stub shim.ChaincodeStubInterface, arg
 	if !ok {
 		return nil, errors.New("The caller is not an administrator")
 	}
+	*/
 
 	myLogger.Debugf("New owner of [%s] is [% x]", owner)
 	//err = stub.PutState(asset, owner)
