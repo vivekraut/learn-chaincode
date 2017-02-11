@@ -131,9 +131,9 @@ func (t *AccumShareChaincode) Init(stub shim.ChaincodeStubInterface, function st
 	//var SubscriberID, PolicyID, PolicyStartDate, PolicyEndDate, PolicyType, DeductibleBalance, OOPBalance string    // Entities
 	//var err error
 
-	/*if len(args) != 4 {
-		return nil, errors.New("Incorrect number of arguments. Expecting 4")
-	}*/
+	//if len(args) != 4 {
+	//	return nil, errors.New("Incorrect number of arguments. Expecting 4")
+	//}
 	
 	
 	user11Cert, err1 := stub.GetCallerMetadata()
