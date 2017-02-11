@@ -258,14 +258,49 @@ func (t *AccumShareChaincode) processClaim(stub shim.ChaincodeStubInterface, arg
 	myLogger.Debugf("admin certificate value from ledger", adminCertificate)
 	
 	
+	
+	sigma, err5 := stub.GetCallerMetadata()
+	if err5 != nil {
+		return false, errors.New("Failed getting metadata")
+	}
+	payload, err5 := stub.GetPayload()
+	if err5 != nil {
+		return false, errors.New("Failed getting payload")
+	}
+	binding, err5 := stub.GetBinding()
+	if err5 != nil {
+		return false, errors.New("Failed getting binding")
+	}
+
+	myLogger.Debugf("passed certificate [% x]", certificate)
+	myLogger.Debugf("passed sigma [% x]", sigma)
+	myLogger.Debugf("passed payload [% x]", payload)
+	myLogger.Debugf("passed binding [% x]", binding)
+	
+	ok, err5 := impl.NewAccessControlShim(stub).VerifySignature(
+		certificate,
+		sigma,
+		append(payload, binding...),
+	)
+	if err5 != nil {
+		myLogger.Errorf("Failed checking signature [%s]", err5)
+		return ok, err5
+	}
+	if !ok {
+		myLogger.Error("Invalid signature")
+	}
+
+	myLogger.Debug("Check caller...Verified!")
+	
+	/*
 	caller, caller_affiliation, err4 := t.get_caller_data(stub)
 	if err4 != nil { fmt.Printf("QUERY: Error retrieving caller details", err4); 
 		       return nil, errors.New("QUERY: Error retrieving caller details: "+err4.Error()) 
-		      }
+		      }*/
 	
     	//myLogger.Debug("function: ", function)
-    	myLogger.Debug("caller: ", caller)
-   	myLogger.Debug("affiliation: ", caller_affiliation)
+    	//myLogger.Debug("caller: ", caller)
+   	//myLogger.Debug("affiliation: ", caller_affiliation)
 	/*
 	ok, err2 := t.isCaller(stub, adminCertificate)
 	if err2 != nil {
