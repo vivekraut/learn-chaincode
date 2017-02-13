@@ -16,264 +16,436 @@ limitations under the License.
 
 package main
 
-import (
-	"bytes"
-	"encoding/base64"
+//WARNING - this chaincode's ID is hard-coded in chaincode_example04 to illustrate one way of
+//calling chaincode from a chaincode. If this example is modified, chaincode_example04.go has
+//to be modified as well with the new ID of chaincode_example02.
+//chaincode_example05 show's how chaincode ID can be passed in as a parameter instead of
+//hard-coding.
+
+import (	
 	"errors"
 	"fmt"
-
+	"strconv"
+	"bytes"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
-	"github.com/hyperledger/fabric/core/chaincode/shim/crypto/attr"
-	//"github.com/op/go-logging"
 )
 
-//var myLogger = logging.MustGetLogger("asset_mgm")
-var myLogger = shim.NewLogger("asset_mgm")
-
-// AssetManagementChaincode example simple Asset Management Chaincode implementation
-// with access control enforcement at chaincode level.
-//
-// This example implements asset transfer using attributes support and specifically Attribute Based Access Control (ABAC).
-// There are three users in this example:
-// - alice
-// - bob
-// - admin
-//
-// This users are defined in the section "eca" of asset.yaml file.
-// In the section "aca" of asset.yaml file two attributes are defined to this users:
-// The first attribute is called 'role' with this values:
-// - alice has role = client
-// - bob has role = client
-// - admin has role = assigner
-//
-// The second attribute is called 'account' with this values:
-// - alice has account = 12345-56789
-// - bob has account = 23456-67890
-//
-// In the present example only users with role 'assigner' can associate an 'asset' as is implemented in function 'assign' and
-// user with role 'client' can transfers theirs assets to other clients as is implemented in function 'transfer'.
-// Asset ownership is stored in the ledger state and is linked to the client account.
-// Attribute 'account' is used to associate transaction certificates with account owner.
-type AssetManagementChaincode struct {
+// SimpleChaincode example simple Chaincode implementation
+type SimpleChaincode struct {
 }
 
-// Init initialization
-func (t *AssetManagementChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-	myLogger.Debug("[AssetManagementChaincode] Init")
-	if len(args) != 0 {
-		return nil, errors.New("Incorrect number of arguments. Expecting 0")
+func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+	var A, B string    // Entities
+	var Aval, Bval int // Asset holdings
+	var err error
+
+	if len(args) != 4 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 4")
 	}
 
-	// Create ownership table
-	err := stub.CreateTable("AssetsOwnership", []*shim.ColumnDefinition{
-		&shim.ColumnDefinition{Name: "Asset", Type: shim.ColumnDefinition_STRING, Key: true},
-		&shim.ColumnDefinition{Name: "Owner", Type: shim.ColumnDefinition_BYTES, Key: false},
-	})
+	// Initialize the chaincode
+	A = args[0]
+	Aval, err = strconv.Atoi(args[1])
 	if err != nil {
-		return nil, fmt.Errorf("Failed creating AssetsOnwership table, [%v]", err)
+		return nil, errors.New("Expecting integer value for asset holding")
 	}
-
-	// Set the role of the users that are allowed to assign assets
-	// The metadata will contain the role of the users that are allowed to assign assets
-	assignerRole, err := stub.GetCallerMetadata()
-	fmt.Printf("Assiger role is %v\n", string(assignerRole))
-
+	B = args[2]
+	Bval, err = strconv.Atoi(args[3])
 	if err != nil {
-		return nil, fmt.Errorf("Failed getting metadata, [%v]", err)
+		return nil, errors.New("Expecting integer value for asset holding")
 	}
+	fmt.Printf("Aval = %d, Bval = %d\n", Aval, Bval)
 
-	if len(assignerRole) == 0 {
-		return nil, errors.New("Invalid assigner role. Empty.")
-	}
-
-	stub.PutState("assignerRole", assignerRole)
-
-	return nil, nil
-}
-
-func (t *AssetManagementChaincode) assign(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	fmt.Println("Assigning Asset...")
-
-	if len(args) != 2 {
-		return nil, errors.New("Incorrect number of arguments. Expecting 2")
-	}
-
-	asset := args[0]
-	owner, err := base64.StdEncoding.DecodeString(args[1])
+	// Write the state to the ledger
+	err = stub.PutState(A, []byte(strconv.Itoa(Aval)))
 	if err != nil {
-		fmt.Printf("Error decoding [%v] \n", err)
-		return nil, errors.New("Failed decodinf owner")
+		return nil, err
 	}
 
-	// Recover the role that is allowed to make assignments
-	assignerRole, err := stub.GetState("assignerRole")
+	err = stub.PutState(B, []byte(strconv.Itoa(Bval)))
 	if err != nil {
-		fmt.Printf("Error getting role [%v] \n", err)
-		return nil, errors.New("Failed fetching assigner role")
-	}
-
-	callerRole, err := stub.ReadCertAttribute("role")
-	if err != nil {
-		fmt.Printf("Error reading attribute 'role' [%v] \n", err)
-		return nil, fmt.Errorf("Failed fetching caller role. Error was [%v]", err)
-	}
-
-	caller := string(callerRole[:])
-	assigner := string(assignerRole[:])
-
-	if caller != assigner {
-		fmt.Printf("Caller is not assigner - caller %v assigner %v\n", caller, assigner)
-		return nil, fmt.Errorf("The caller does not have the rights to invoke assign. Expected role [%v], caller role [%v]", assigner, caller)
-	}
-
-	account, err := attr.GetValueFrom("account", owner)
-	if err != nil {
-		fmt.Printf("Error reading account [%v] \n", err)
-		return nil, fmt.Errorf("Failed fetching recipient account. Error was [%v]", err)
-	}
-
-	// Register assignment
-	myLogger.Debugf("New owner of [%s] is [% x]", asset, owner)
-
-	ok, err := stub.InsertRow("AssetsOwnership", shim.Row{
-		Columns: []*shim.Column{
-			&shim.Column{Value: &shim.Column_String_{String_: asset}},
-			&shim.Column{Value: &shim.Column_Bytes{Bytes: account}}},
-	})
-
-	if !ok && err == nil {
-		fmt.Println("Error inserting row")
-		return nil, errors.New("Asset was already assigned.")
-	}
-
-	return nil, err
-}
-
-func (t *AssetManagementChaincode) transfer(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	if len(args) != 2 {
-		return nil, errors.New("Incorrect number of arguments. Expecting 2")
-	}
-
-	asset := args[0]
-
-	newOwner, err := base64.StdEncoding.DecodeString(args[1])
-	if err != nil {
-		fmt.Printf("Error decoding [%v] \n", err)
-		return nil, errors.New("Failed decoding owner")
-	}
-
-	// Verify the identity of the caller
-	// Only the owner can transfer one of his assets
-	var columns []shim.Column
-	col1 := shim.Column{Value: &shim.Column_String_{String_: asset}}
-	columns = append(columns, col1)
-
-	row, err := stub.GetRow("AssetsOwnership", columns)
-	if err != nil {
-		return nil, fmt.Errorf("Failed retrieving asset [%s]: [%s]", asset, err)
-	}
-
-	prvOwner := row.Columns[1].GetBytes()
-	myLogger.Debugf("Previous owener of [%s] is [% x]", asset, prvOwner)
-	if len(prvOwner) == 0 {
-		return nil, fmt.Errorf("Invalid previous owner. Nil")
-	}
-
-	// Verify ownership
-	callerAccount, err := stub.ReadCertAttribute("account")
-	if err != nil {
-		return nil, fmt.Errorf("Failed fetching caller account. Error was [%v]", err)
-	}
-
-	if bytes.Compare(prvOwner, callerAccount) != 0 {
-		return nil, fmt.Errorf("Failed verifying caller ownership.")
-	}
-
-	newOwnerAccount, err := attr.GetValueFrom("account", newOwner)
-	if err != nil {
-		return nil, fmt.Errorf("Failed fetching new owner account. Error was [%v]", err)
-	}
-
-	// At this point, the proof of ownership is valid, then register transfer
-	err = stub.DeleteRow(
-		"AssetsOwnership",
-		[]shim.Column{shim.Column{Value: &shim.Column_String_{String_: asset}}},
-	)
-	if err != nil {
-		return nil, errors.New("Failed deliting row.")
-	}
-
-	_, err = stub.InsertRow(
-		"AssetsOwnership",
-		shim.Row{
-			Columns: []*shim.Column{
-				&shim.Column{Value: &shim.Column_String_{String_: asset}},
-				&shim.Column{Value: &shim.Column_Bytes{Bytes: newOwnerAccount}},
-			},
-		})
-	if err != nil {
-		return nil, errors.New("Failed inserting row.")
+		return nil, err
 	}
 
 	return nil, nil
 }
 
-// Invoke runs callback representing the invocation of a chaincode
-func (t *AssetManagementChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 
-	// Handle different functions
-	if function == "assign" {
-		// Assign ownership
-		return t.assign(stub, args)
-	} else if function == "transfer" {
-		// Transfer ownership
-		return t.transfer(stub, args)
+func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+    var key, value string	
+    //var err error
+    fmt.Println("Storing the parameters in hyperledger fabric...")
+
+    /*if len(args) != 2 {
+        return nil, errors.New("Incorrect number of arguments. Expecting 2. name of the key and value to set")
+    }*/
+	
+	if(len(args)%2 != 0) {
+		  fmt.Printf("Incorrect number of arguments. One of the keys or values is missing.")
+		  fmt.Println("")
+				  
+    }else{
+	     for i := 0; i < len(args); i++ {
+	     if(i%2 == 0){
+		     if args[i] != "" {
+                  fmt.Printf("Key: %s", args[i])
+				  fmt.Println("")
+				  key = args[i]    
+				  i++
+             }
+		     if(i!=len(args)) {
+			      fmt.Printf("Value: %s", args[i])
+			      fmt.Println("")
+				  value = args[i]
+			 }
+			 
+			 //check if the state exists. If not initialize the state
+			Avalbytes, err := stub.GetState(key)
+			if err != nil {
+				jsonResp := "{\"Error\":\"Failed to get state for " + key + "\"}"
+				return nil, errors.New(jsonResp)
+			}
+		
+			if Avalbytes == nil {
+				Avalbytes = []byte("0")
+				//err = stub.PutState(key, Avalbytes)
+				
+				//jsonResp := "{\"Error\":\"Nil amount for " + key + "\"}"
+				//return nil, errors.New(jsonResp)
+			}
+			 
+		        err = stub.PutState(key, []byte(value))  //write the variable into the chaincode state
+			 if err != nil {
+				return nil, err
+			 }
+		 }
+    }
 	}
 
-	return nil, errors.New("Received unknown function invocation")
+	/*
+    key = args[0]                            //rename for fun
+    value = args[1]
+    err = stub.PutState(key, []byte(value))  //write the variable into the chaincode state
+    if err != nil {
+        return nil, err
+    }
+	*/
+		
+    return nil, nil
+}
+
+
+// Transaction makes payment of X units from A to B
+func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+	if function == "delete" {
+		// Deletes an entity from its state
+		return t.delete(stub, args)
+	}
+	if function == "write" {
+		fmt.Println("Calling write()")
+        return t.write(stub, args)
+    }
+
+	var A, B string    // Entities
+	var Aval, Bval int // Asset holdings
+	var X int          // Transaction value
+	var err error
+
+	if len(args) != 3 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 3")
+	}
+
+	A = args[0]
+	B = args[1]
+	
+	
+	// Get the state from the ledger
+	// TODO: will be nice to have a GetAllState call to ledger
+	Avalbytes, err := stub.GetState(A)
+	if err != nil {
+		return nil, errors.New("Failed to get state")
+	}
+	if Avalbytes == nil {
+		return nil, errors.New("Entity not found")
+	}
+	Aval, _ = strconv.Atoi(string(Avalbytes))
+
+	Bvalbytes, err := stub.GetState(B)
+	if err != nil {
+		return nil, errors.New("Failed to get state")
+	}
+	if Bvalbytes == nil {
+		return nil, errors.New("Entity not found")
+	}
+	Bval, _ = strconv.Atoi(string(Bvalbytes))
+
+	// Perform the execution
+	X, err = strconv.Atoi(args[2])
+	Aval = Aval - X
+	Bval = Bval + X
+	fmt.Printf("Aval = %d, Bval = %d\n", Aval, Bval)
+	
+	//Store state for transactions
+	var transacted, historyval string
+	transacted = "T_"+args[0]+"|"+args[1]
+	Tvalbytes, err := stub.GetState(transacted)
+	if err != nil {
+		return nil, errors.New("Failed to get transacted state")
+	}
+	if Tvalbytes == nil {
+		historyval = args[2]
+	}else{
+		historyval = string(Tvalbytes)
+		historyval = historyval+","+args[2]		
+	}	
+	err = stub.PutState(transacted, []byte(historyval))
+	if err != nil {
+		return nil, err
+	}
+	
+	
+	//Store state for sponsor transactions
+	var s_transactions, s_history string
+	s_transactions = "T_"+args[0]
+	Svalbytes, err := stub.GetState(s_transactions)
+	if err != nil {
+		return nil, errors.New("Failed to get sponsor transacted state")
+	}
+	if Svalbytes == nil {
+		s_history = args[1]+"|"+args[2]
+	}else{
+		s_history = string(Svalbytes)
+		s_history = s_history+","+args[1]+"|"+args[2]	
+	}	
+	err = stub.PutState(s_transactions, []byte(s_history))
+	if err != nil {
+		return nil, err
+	}
+	
+	
+	//Store state for Idea transactions
+	var i_transactions, i_history string
+	i_transactions = "T_"+args[1]
+	Ivalbytes, err := stub.GetState(i_transactions)
+	if err != nil {
+		return nil, errors.New("Failed to get idea transacted state")
+	}
+	if Ivalbytes == nil {
+		i_history = args[0]+"|"+args[2]
+	}else{
+		i_history = string(Ivalbytes)
+		i_history = i_history+","+args[0]+"|"+args[2]	
+	}	
+	err = stub.PutState(i_transactions, []byte(i_history))
+	if err != nil {
+		return nil, err
+	}
+	
+	
+	
+
+	// Write the state back to the ledger
+	err = stub.PutState(A, []byte(strconv.Itoa(Aval)))
+	if err != nil {
+		return nil, err
+	}
+
+	err = stub.PutState(B, []byte(strconv.Itoa(Bval)))
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
+}
+
+// Deletes an entity from state
+func (t *SimpleChaincode) delete(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	if len(args) != 1 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 1")
+	}
+
+	A := args[0]
+
+	// Delete the key from the state in ledger
+	err := stub.DelState(A)
+	if err != nil {
+		return nil, errors.New("Failed to delete state")
+	}
+
+	return nil, nil
 }
 
 // Query callback representing the query of a chaincode
-func (t *AssetManagementChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-	if function != "query" {
-		return nil, errors.New("Invalid query function name. Expecting 'query' but found '" + function + "'")
-	}
-
+func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+	/*if function != "query" {
+		return nil, errors.New("Invalid query function name. Expecting \"query\"")
+	}*/
+	
+	if function == "queryAll" {
+		fmt.Println("Calling QueryAll()")
+        return t.queryAll(stub, args)
+    }
+	
+	if function == "queryTransact" {
+		fmt.Println("Calling QueryTransact()")
+        return t.queryTransact(stub, args)
+    }
+	
+	var A string // Entities
 	var err error
 
 	if len(args) != 1 {
-		return nil, errors.New("Incorrect number of arguments. Expecting name of an asset to query")
+		return nil, errors.New("Incorrect number of arguments. Expecting name of the person to query")
 	}
 
-	// Who is the owner of the asset?
-	asset := args[0]
+	A = args[0]
 
-	fmt.Printf("ASSET: %v", string(asset))
-
-	var columns []shim.Column
-	col1 := shim.Column{Value: &shim.Column_String_{String_: asset}}
-	columns = append(columns, col1)
-
-	row, err := stub.GetRow("AssetsOwnership", columns)
+	// Get the state from the ledger
+	Avalbytes, err := stub.GetState(A)
 	if err != nil {
-		jsonResp := "{\"Error\":\"Failed retrieving asset " + asset + ". Error " + err.Error() + ". \"}"
+		jsonResp := "{\"Error\":\"Failed to get state for " + A + "\"}"
 		return nil, errors.New(jsonResp)
 	}
 
-	if len(row.Columns) == 0 {
-		jsonResp := "{\"Error\":\"Failed retrieving owner for " + asset + ". \"}"
-		return nil, errors.New(jsonResp)
+	if Avalbytes == nil {
+		Avalbytes = []byte("0")
+		//jsonResp := "{\"Error\":\"Nil amount for " + A + "\"}"
+		//return nil, errors.New(jsonResp)
 	}
 
-	jsonResp := "{\"Owner\":\"" + string(row.Columns[1].GetBytes()) + "\"}"
+	jsonResp := "{\"Name\":\"" + A + "\",\"Amount\":\"" + string(Avalbytes) + "\"}"
 	fmt.Printf("Query Response:%s\n", jsonResp)
-
-	return row.Columns[1].GetBytes(), nil
+	return Avalbytes, nil
 }
 
-func main() {
-	err := shim.Start(new(AssetManagementChaincode))
+
+
+
+
+// Query callback representing the query of a chaincode
+func (t *SimpleChaincode) queryAll(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+		
+	//var A string // Entities
+	//var err error
+
+	/*if len(args) != 1 {
+		return nil, errors.New("Incorrect number of arguments. Expecting name of the person to query")
+	}*/
+    var RetValue []byte
+	var buffer bytes.Buffer 
+    var jsonRespString string    
+		for i := 0; i < len(args); i++ {	     
+		    Avalbytes, err := stub.GetState(args[i])
+			if err != nil {
+				jsonResp := "{\"Error\":\"Failed to get state for " + args[i] + "\"}"
+				return nil, errors.New(jsonResp)
+			}
+
+			if Avalbytes == nil {
+				Avalbytes = []byte("0")
+				//jsonResp := "{\"Error\":\"Nil amount for " + args[i] + "\"}"
+				//return nil, errors.New(jsonResp)
+			}
+			if(i!=len(args)-1) {
+			   jsonRespString =  string(Avalbytes)+","
+			}else{
+			   jsonRespString =  string(Avalbytes)
+			}
+			buffer.WriteString(jsonRespString)			
+			RetValue = []byte(buffer.String())			
+			
+		}
+		jsonResp := "{"+buffer.String()+"}"
+		fmt.Printf("Query Response:%s\n", jsonResp)
+		return RetValue, nil
+		
+	
+	/*
+	A = args[0]
+
+	// Get the state from the ledger
+	Avalbytes, err := stub.GetState(A)
 	if err != nil {
-		fmt.Printf("Error starting AssetManagementChaincode: %s", err)
+		jsonResp := "{\"Error\":\"Failed to get state for " + A + "\"}"
+		return nil, errors.New(jsonResp)
+	}
+
+	if Avalbytes == nil {
+		jsonResp := "{\"Error\":\"Nil amount for " + A + "\"}"
+		return nil, errors.New(jsonResp)
+	}
+
+	jsonResp := "{\"Name\":\"" + A + "\",\"Amount\":\"" + string(Avalbytes) + "\"}"
+	fmt.Printf("Query Response:%s\n", jsonResp)
+	return Avalbytes, nil
+	*/
+}
+
+
+
+
+
+// Query callback representing the query of a chaincode
+func (t *SimpleChaincode) queryTransact(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+		
+	//var A string // Entities
+	//var err error
+
+	/*if len(args) != 1 {
+		return nil, errors.New("Incorrect number of arguments. Expecting name of the person to query")
+	}*/
+    var RetValue []byte
+	var buffer bytes.Buffer 
+    var jsonRespString, queryparam string  
+	queryparam = "T_"+args[0]
+			     
+		Tvalbytes, err := stub.GetState(queryparam)
+		if err != nil {
+			jsonResp := "{\"Error\":\"Failed to get state for " + args[0] + "\"}"
+			return nil, errors.New(jsonResp)
+		}
+
+		if Tvalbytes == nil {
+			Tvalbytes = []byte("0")
+			//jsonResp := "{\"Error\":\"Nil amount for " + args[i] + "\"}"
+			//return nil, errors.New(jsonResp)
+		}
+		
+		jsonRespString =  string(Tvalbytes)		
+		buffer.WriteString(jsonRespString)			
+		RetValue = []byte(buffer.String())
+		jsonResp := "{"+buffer.String()+"}"
+		fmt.Printf("Query Response:%s\n", jsonResp)
+		return RetValue, nil
+		
+	
+	/*
+	A = args[0]
+
+	// Get the state from the ledger
+	Avalbytes, err := stub.GetState(A)
+	if err != nil {
+		jsonResp := "{\"Error\":\"Failed to get state for " + A + "\"}"
+		return nil, errors.New(jsonResp)
+	}
+
+	if Avalbytes == nil {
+		jsonResp := "{\"Error\":\"Nil amount for " + A + "\"}"
+		return nil, errors.New(jsonResp)
+	}
+
+	jsonResp := "{\"Name\":\"" + A + "\",\"Amount\":\"" + string(Avalbytes) + "\"}"
+	fmt.Printf("Query Response:%s\n", jsonResp)
+	return Avalbytes, nil
+	*/
+}
+
+
+
+
+func main() {
+	err := shim.Start(new(SimpleChaincode))
+	if err != nil {
+		fmt.Printf("Error starting Simple chaincode: %s", err)
 	}
 }
