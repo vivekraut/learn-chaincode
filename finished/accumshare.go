@@ -145,8 +145,8 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 // Deletes an entity from state
 func (t *SimpleChaincode) addTable(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	
-	err := stub.CreateTable(“TableName”, []*shim.ColumnDefinition{
-	&shim.ColumnDefinition{Name: “Customer_ID”, Type: shim.ColumnDefinition_STRING, Key: true},
+	err := stub.CreateTable("Customer", []*shim.ColumnDefinition{
+	&shim.ColumnDefinition{Name: "Customer_ID", Type: shim.ColumnDefinition_STRING, Key: true},
 	&shim.ColumnDefinition{Name: "Customer_Name", Type: shim.ColumnDefinition_STRING, Key: false},
 	&shim.ColumnDefinition{Name: "Customer_Gender", Type: shim.ColumnDefinition_STRING, Key: false},
 	})
