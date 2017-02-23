@@ -217,7 +217,7 @@ func (t *SimpleChaincode) getTable(stub shim.ChaincodeStubInterface, args []stri
 		if err != nil {
 			return nil, fmt.Errorf("getRows operation failed. Error marshaling JSON: %s", err)
 		}
-
+	fmt.Printf("Query Response:%s\n", jsonRows)
 	return nil, nil
 }
 
