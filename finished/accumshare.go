@@ -154,25 +154,25 @@ func (t *SimpleChaincode) addTable(stub shim.ChaincodeStubInterface, args []stri
 
 	success, err := stub.InsertRow("Customer", shim.Row{
 	Columns: []*shim.Column{
-	&shim.Column{Value: &shim.Column_String_{String_: C1001}},
-	&shim.Column{Value: &shim.Column_String_{String_: Vivek}},
-	&shim.Column{Value: &shim.Column_String_{String_: Male}},
+	&shim.Column{Value: &shim.Column_String_{String_: "C1001"}},
+	&shim.Column{Value: &shim.Column_String_{String_: "Vivek"}},
+	&shim.Column{Value: &shim.Column_String_{String_: "Male"}},
 	},
 	})
 	
 	success, err := stub.InsertRow("Customer", shim.Row{
 	Columns: []*shim.Column{
-	&shim.Column{Value: &shim.Column_String_{String_: C1002}},
-	&shim.Column{Value: &shim.Column_String_{String_: John}},
-	&shim.Column{Value: &shim.Column_String_{String_: Male}},
+	&shim.Column{Value: &shim.Column_String_{String_: "C1002"}},
+	&shim.Column{Value: &shim.Column_String_{String_: "John"}},
+	&shim.Column{Value: &shim.Column_String_{String_: "Male"}},
 	},
 	})
 	
 	success, err := stub.InsertRow("Customer", shim.Row{
 	Columns: []*shim.Column{
-	&shim.Column{Value: &shim.Column_String_{String_: C1003}},
-	&shim.Column{Value: &shim.Column_String_{String_: Simone}},
-	&shim.Column{Value: &shim.Column_String_{String_: Female}},
+	&shim.Column{Value: &shim.Column_String_{String_: "C1003"}},
+	&shim.Column{Value: &shim.Column_String_{String_: "Simone"}},
+	&shim.Column{Value: &shim.Column_String_{String_: "Female"}},
 	},
 	})
 	return nil, nil
