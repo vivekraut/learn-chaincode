@@ -151,7 +151,10 @@ func (t *SimpleChaincode) addTable(stub shim.ChaincodeStubInterface, args []stri
 	&shim.ColumnDefinition{Name: "Customer_Name", Type: shim.ColumnDefinition_STRING, Key: false},
 	&shim.ColumnDefinition{Name: "Customer_Gender", Type: shim.ColumnDefinition_STRING, Key: false},
 	})
-
+	
+	if err != nil {
+		return nil, err
+	}
 
 	success1, err := stub.InsertRow("Customer", shim.Row{
 	Columns: []*shim.Column{
@@ -161,6 +164,14 @@ func (t *SimpleChaincode) addTable(stub shim.ChaincodeStubInterface, args []stri
 	},
 	})
 	
+	if success1 == nil {
+		return nil, errors.New("Entity not found")
+	}
+	
+	if err != nil {
+		return nil, err
+	}
+	
 	success2, err := stub.InsertRow("Customer", shim.Row{
 	Columns: []*shim.Column{
 	&shim.Column{Value: &shim.Column_String_{String_: "C1002"}},
@@ -169,6 +180,13 @@ func (t *SimpleChaincode) addTable(stub shim.ChaincodeStubInterface, args []stri
 	},
 	})
 	
+	if success2 == nil {
+		return nil, errors.New("Entity not found")
+	}
+	if err != nil {
+		return nil, err
+	}
+	
 	success3, err := stub.InsertRow("Customer", shim.Row{
 	Columns: []*shim.Column{
 	&shim.Column{Value: &shim.Column_String_{String_: "C1003"}},
@@ -176,6 +194,13 @@ func (t *SimpleChaincode) addTable(stub shim.ChaincodeStubInterface, args []stri
 	&shim.Column{Value: &shim.Column_String_{String_: "Female"}},
 	},
 	})
+	
+	if success3 == nil {
+		return nil, errors.New("Entity not found")
+	}
+	if err != nil {
+		return nil, err
+	}
 	return nil, nil
 }
 
