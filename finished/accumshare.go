@@ -188,7 +188,7 @@ func (t *SimpleChaincode) getTable(stub shim.ChaincodeStubInterface, args []stri
 
 	row, err := stub.GetRow("Customer", columns)
 	if err != nil {
-		return shim.Error(fmt.Sprintf("Failed retrieving asset [%s]: [%s]", "C1001", err))
+		return nil, fmt.Errorf("getRows operation failed. %s", err)
 	}
 	
 	var columns2 []shim.Column
