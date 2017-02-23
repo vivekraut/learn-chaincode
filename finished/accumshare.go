@@ -470,7 +470,7 @@ func main() {
 	}
 }
 
-func createTableOne(stub *shim.ChaincodeStub) error {
+func createTableOne(stub *shim.ChaincodeStubInterface) error {
 	// Create table one
 	var columnDefsTableOne []*shim.ColumnDefinition
 	columnOneTableOneDef := shim.ColumnDefinition{Name: "colOneTableOne",
@@ -485,7 +485,7 @@ func createTableOne(stub *shim.ChaincodeStub) error {
 	return stub.CreateTable("tableOne", columnDefsTableOne)
 }
 
-func createTableTwo(stub *shim.ChaincodeStub) error {
+func createTableTwo(stub *shim.ChaincodeStubInterface) error {
 	var columnDefsTableTwo []*shim.ColumnDefinition
 	columnOneTableTwoDef := shim.ColumnDefinition{Name: "colOneTableTwo",
 		Type: shim.ColumnDefinition_STRING, Key: true}
@@ -502,7 +502,7 @@ func createTableTwo(stub *shim.ChaincodeStub) error {
 	return stub.CreateTable("tableTwo", columnDefsTableTwo)
 }
 
-func createTableThree(stub *shim.ChaincodeStub) error {
+func createTableThree(stub *shim.ChaincodeStubInterface) error {
 	var columnDefsTableThree []*shim.ColumnDefinition
 	columnOneTableThreeDef := shim.ColumnDefinition{Name: "colOneTableThree",
 		Type: shim.ColumnDefinition_STRING, Key: true}
@@ -528,7 +528,7 @@ func createTableThree(stub *shim.ChaincodeStub) error {
 	return stub.CreateTable("tableThree", columnDefsTableThree)
 }
 
-func createTableFour(stub *shim.ChaincodeStub) error {
+func createTableFour(stub *shim.ChaincodeStubInterface) error {
 	var columnDefsTableFour []*shim.ColumnDefinition
 	columnOneTableFourDef := shim.ColumnDefinition{Name: "colOneTableFour",
 		Type: shim.ColumnDefinition_STRING, Key: true}
