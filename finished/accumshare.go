@@ -164,7 +164,7 @@ func (t *SimpleChaincode) addTable(stub shim.ChaincodeStubInterface, args []stri
 	},
 	})
 	
-	if success1 == nil {
+	if !success1 {
 		return nil, errors.New("Entity not found")
 	}
 	
@@ -180,7 +180,7 @@ func (t *SimpleChaincode) addTable(stub shim.ChaincodeStubInterface, args []stri
 	},
 	})
 	
-	if success2 == nil {
+	if !success2 {
 		return nil, errors.New("Entity not found")
 	}
 	if err != nil {
@@ -195,7 +195,7 @@ func (t *SimpleChaincode) addTable(stub shim.ChaincodeStubInterface, args []stri
 	},
 	})
 	
-	if success3 == nil {
+	if !success3 {
 		return nil, errors.New("Entity not found")
 	}
 	if err != nil {
