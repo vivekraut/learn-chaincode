@@ -26,6 +26,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"encoding/json"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
@@ -187,7 +188,7 @@ func (t *SimpleChaincode) getTable(stub shim.ChaincodeStubInterface, args []stri
 
 	row, err := stub.GetRow("Customer", columns)
 	if err != nil {
-		return shim.Error(fmt.Sprintf("Failed retrieving asset [%s]: [%s]", C1001, err))
+		return shim.Error(fmt.Sprintf("Failed retrieving asset [%s]: [%s]", "C1001", err))
 	}
 	
 	var columns2 []shim.Column
