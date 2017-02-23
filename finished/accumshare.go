@@ -217,7 +217,8 @@ func (t *SimpleChaincode) getTable(stub shim.ChaincodeStubInterface, args []stri
 	}
 	
 	cust := row.Columns[1].GetBytes()
-	myLogger.Debugf(" customer is [% x]",  cust)
+	fmt.Printf("Customer = %d\n", cust)
+	//myLogger.Debugf(" customer is [% x]",  cust)
 	
 	var columns2 []shim.Column
 	col2 := shim.Column{Value: &shim.Column_String_{String_: "Male"}}
