@@ -219,7 +219,7 @@ func (t *SimpleChaincode) getTable(stub shim.ChaincodeStubInterface, args []stri
 	//jsonRow, err := json.Marshal(row)
 	//	if err != nil {
 	//		return nil, fmt.Errorf("getRows operation failed. Error marshaling JSON: %s", err)
-		}
+	//	}
 	//fmt.Printf("Query Response Row:%s\n", jsonRow)
 	
 	cust := row.Columns[1].GetBytes()
