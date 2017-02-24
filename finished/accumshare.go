@@ -227,8 +227,8 @@ func (t *SimpleChaincode) getTable(stub shim.ChaincodeStubInterface, args []stri
 	//myLogger.Debugf(" customer is [% x]",  cust)
 	
 	var columns2 []shim.Column
-	col2 := shim.Column{Value: &shim.Column_String_{String_: "C1001"}}
-	columns2 = append(columns2, col2)
+	//col2 := shim.Column{Value: &shim.Column_String_{String_: "C1001"}}
+	//columns = append(columns2, col2)
 	
 	rowChannel, err := stub.GetRows("Customer", columns2)
 	if err != nil {
