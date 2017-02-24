@@ -149,7 +149,7 @@ func (t *SimpleChaincode) addTable(stub shim.ChaincodeStubInterface, args []stri
 	err := stub.CreateTable("Customer", []*shim.ColumnDefinition{
 	&shim.ColumnDefinition{Name: "Customer_ID", Type: shim.ColumnDefinition_STRING, Key: true},
 	&shim.ColumnDefinition{Name: "Customer_Name", Type: shim.ColumnDefinition_STRING, Key: false},
-	&shim.ColumnDefinition{Name: "Customer_Gender", Type: shim.ColumnDefinition_STRING, Key: false},
+	&shim.ColumnDefinition{Name: "Customer_Gender", Type: shim.ColumnDefinition_STRING, Key: true},
 	})
 	
 	if err != nil {
@@ -207,13 +207,30 @@ func (t *SimpleChaincode) addTable(stub shim.ChaincodeStubInterface, args []stri
 // Deletes an entity from state
 func (t *SimpleChaincode) getTable(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	
-	
-	
 	var columns []shim.Column
-	col := shim.Column{Value: &shim.Column_String_{String_: "Male"}}
-	columns = append(columns, col)
+	col1 := shim.Column{Value: &shim.Column_String_{String_: "C1001"}}
+	columns = append(columns, col1)
+
+	row, err := stub.GetRow("Customer", columns)
+	if err != nil {
+		return nil, fmt.Errorf("getRows operation failed. %s", err)
+	}
 	
-	rowChannel, err := stub.GetRows("Customer", columns)
+	jsonRow, err := json.Marshal(row)
+		if err != nil {
+			return nil, fmt.Errorf("getRows operation failed. Error marshaling JSON: %s", err)
+		}
+	fmt.Printf("Query Response Row:%s\n", jsonRow)
+	
+	cust := row.Columns[1].GetBytes()
+	fmt.Printf("Customer = %d\n", cust)
+	//myLogger.Debugf(" customer is [% x]",  cust)
+	
+	var columns2 []shim.Column
+	col2 := shim.Column{Value: &shim.Column_String_{String_: "Male"}}
+	columns2 = append(columns2, col2)
+	
+	rowChannel, err := stub.GetRows("Customer", columns2)
 	if err != nil {
 		return nil, fmt.Errorf("getRows operation failed. %s", err)
 	}
