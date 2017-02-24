@@ -149,7 +149,7 @@ func (t *SimpleChaincode) addTable(stub shim.ChaincodeStubInterface, args []stri
 	err := stub.CreateTable("Customer", []*shim.ColumnDefinition{
 	&shim.ColumnDefinition{Name: "Customer_ID", Type: shim.ColumnDefinition_STRING, Key: true},
 	&shim.ColumnDefinition{Name: "Customer_Name", Type: shim.ColumnDefinition_STRING, Key: false},
-	&shim.ColumnDefinition{Name: "Customer_Gender", Type: shim.ColumnDefinition_STRING, Key: true},
+	&shim.ColumnDefinition{Name: "Customer_Gender", Type: shim.ColumnDefinition_STRING, Key: false},
 	})
 	
 	if err != nil {
@@ -227,7 +227,7 @@ func (t *SimpleChaincode) getTable(stub shim.ChaincodeStubInterface, args []stri
 	//myLogger.Debugf(" customer is [% x]",  cust)
 	
 	var columns2 []shim.Column
-	col2 := shim.Column{Value: &shim.Column_String_{String_: "Male"}}
+	col2 := shim.Column{Value: &shim.Column_String_{String_: "C1001"}}
 	columns2 = append(columns2, col2)
 	
 	rowChannel, err := stub.GetRows("Customer", columns2)
