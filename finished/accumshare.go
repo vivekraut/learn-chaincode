@@ -216,11 +216,11 @@ func (t *SimpleChaincode) getTable(stub shim.ChaincodeStubInterface, args []stri
 		return nil, fmt.Errorf("getRows operation failed. %s", err)
 	}
 	
-	jsonRow, err := json.Marshal(row)
-		if err != nil {
-			return nil, fmt.Errorf("getRows operation failed. Error marshaling JSON: %s", err)
+	//jsonRow, err := json.Marshal(row)
+	//	if err != nil {
+	//		return nil, fmt.Errorf("getRows operation failed. Error marshaling JSON: %s", err)
 		}
-	fmt.Printf("Query Response Row:%s\n", jsonRow)
+	//fmt.Printf("Query Response Row:%s\n", jsonRow)
 	
 	cust := row.Columns[1].GetBytes()
 	fmt.Printf("Customer = %d\n", cust)
@@ -230,7 +230,7 @@ func (t *SimpleChaincode) getTable(stub shim.ChaincodeStubInterface, args []stri
 	col2 := shim.Column{Value: &shim.Column_String_{String_: "Male"}}
 	columns = append(columns2, col2)
 	
-	rowChannel, err := stub.GetRows("Customer", columns)
+	rowChannel, err := stub.GetRows("Customer", columns2)
 	if err != nil {
 		return nil, fmt.Errorf("getRows operation failed. %s", err)
 	}
