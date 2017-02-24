@@ -208,16 +208,22 @@ func (t *SimpleChaincode) addTable(stub shim.ChaincodeStubInterface, args []stri
 func (t *SimpleChaincode) getTable(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	
 	var columns []shim.Column
-	//col1 := shim.Column{Value: &shim.Column_String_{String_: "C1001"}}
-	//columns = append(columns, col1)
+	col1 := shim.Column{Value: &shim.Column_String_{String_: "C1001"}}
+	columns = append(columns, col1)
 
-	//row, err := stub.GetRow("Customer", columns)
-	//if err != nil {
-	//	return nil, fmt.Errorf("getRows operation failed. %s", err)
-	//}
+	row, err := stub.GetRow("Customer", columns)
+	if err != nil {
+		return nil, fmt.Errorf("getRows operation failed. %s", err)
+	}
 	
-	//cust := row.Columns[1].GetBytes()
-	//fmt.Printf("Customer = %d\n", cust)
+	jsonRow, err := json.Marshal(row)
+		if err != nil {
+			return nil, fmt.Errorf("getRows operation failed. Error marshaling JSON: %s", err)
+		}
+	fmt.Printf("Query Response Row:%s\n", jsonRow)
+	
+	cust := row.Columns[1].GetBytes()
+	fmt.Printf("Customer = %d\n", cust)
 	//myLogger.Debugf(" customer is [% x]",  cust)
 	
 	var columns2 []shim.Column
