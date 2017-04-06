@@ -412,11 +412,10 @@ func ListProposal(proposalJSON string, stub shim.ChaincodeStubInterface) ([]byte
 		fmt.Println(string(body))	
 		err = stub.PutState(res.ProposalID, []byte(string(body)))
 		if err != nil {
-			fmt.Println("Failed to create User ")
+			fmt.Println("Failed to create Proposal ")
 		}
 		fmt.Println("Created User  with Key : "+ res.ProposalID)
-	}
-	else{
+	}else{
 		fmt.Println("Proposal is not Valid. Enter future date or valid price or proposed energy value.")
 		return nil, errors.New("Error listing proposal")
 	}	
