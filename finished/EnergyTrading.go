@@ -127,6 +127,18 @@ func (self *EnergyTradingChainCode) Invoke(stub shim.ChaincodeStubInterface,
 	function string, args []string) ([]byte, error) {
 	fmt.Println("In Invoke with function  " + function)
 	
+	if function == "AddUser" {
+		fmt.Println("invoking AddUser " + function)
+		testBytes,err := AddUser(args,stub)
+		if err != nil {
+			fmt.Println("Error performing AddUser ")
+			return nil, err
+		}
+		fmt.Println("Processed AddUser successfully. ")
+		return testBytes, nil
+	}
+	
+	
 	fmt.Println("invoke did not find func: " + function)
 	return nil, errors.New("Received unknown function invocation: " + function)
 }
@@ -179,8 +191,6 @@ func GetUsers(userID string, stub shim.ChaincodeStubInterface)(User, error) {
 	fmt.Println("In query.GetUsers end ")
 	return users, nil
 }
-
-
 
 
 func AddUser(userJSON string, stub shim.ChaincodeStubInterface) ([]byte, error) {
@@ -243,7 +253,6 @@ func SetGridPrice(gridPriceJSON string, stub shim.ChaincodeStubInterface) ([]byt
 	return nil,nil	
 	
 }
-
 
 
 func SetPlatformCharge(chargeValue string, stub shim.ChaincodeStubInterface) ([]byte, error) {
