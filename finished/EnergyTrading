@@ -82,6 +82,43 @@ type Balance struct{
 }
 
 
+func (self *ClaimsProcessingChainCode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+	fmt.Println("In Init start ")
+	
+	var UserID, SmartMeterID, UserType string 
+	
+	if len(args) != 3 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 3 - UserID, SmartMeterID and UserType. UserType should be Prosumer, Battery or Grid")
+	}
+	
+	UserID = args[0]
+	SmartMeterID = args[1]
+	UserType = args[2]
+	
+	res := &User{}
+	res.UserID = UserID
+	res.SmartMeterID = SmartMeterID
+	res.UserType = UserType
+	
+	body, err := json.Marshal(res)
+	if err != nil {
+        panic(err)
+    }
+    fmt.Println(string(body))		
+	
+	if function == "InitializeUser" {
+		userBytes, err := AddUser(string(body),stub)
+		if err != nil {
+			fmt.Println("Error receiving  the User Details")
+			return nil, err
+		}
+		fmt.Println("Initialization of User complete")
+		return userBytes, nil
+	}
+	fmt.Println("Initialization No functions found ")
+	return nil, nil
+}
+
 func AddUser(userJSON string, stub shim.ChaincodeStubInterface) ([]byte, error) {
 	fmt.Println("In services.AddUser start ")
 	//smartMeterId :=args[0]
