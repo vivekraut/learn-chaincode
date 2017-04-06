@@ -212,7 +212,7 @@ func SetPlatformCharge(chargeValue string, stub shim.ChaincodeStubInterface) ([]
 	//chargeValue :=args[0]
 	
 	key := "PlatformCharges"
-	err = stub.PutState(key,chargeValue)
+	err = stub.PutState(key, []byte(chargeValue))
 	
 	fmt.Println("Created Charge  with Key : "+ key)
 	fmt.Println("In initialize.SetPlatformCharge end ")
