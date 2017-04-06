@@ -376,20 +376,51 @@ func ListProposal(proposalJSON string, stub shim.ChaincodeStubInterface) ([]byte
 	}	
 	fmt.Println("ProposalID  : ",res.ProposalID)
 	
-	res.Status = "OPEN"
-	res.EnergySigned = "0"
-	res.EnergyRemaining = res.EnergyProposed	
-    
-	body, err := json.Marshal(res)
+	users,err := GetUsers(res.UserID, stub)
 	if err != nil {
-        panic(err)
-    }
-    fmt.Println(string(body))	
-	err = stub.PutState(res.ProposalID, []byte(string(body)))
-	if err != nil {
-		fmt.Println("Failed to create User ")
+		fmt.Println("Error receiving  the Users")
+		return nil, errors.New("Error receiving  Users")
 	}
-	fmt.Println("Created User  with Key : "+ res.ProposalID)
+	
+	now := time.Now()
+	//Getting the date only 	
+	dateValue := res.Date[:len(res.Date)-6]
+	//20170406122460
+	formattedDate := time.Date(res.Date[:len(res.Date)-10], res.Date[4:len(res.Date)-8], res.Date[6:len(res.Date)-6], res.Date[8:len(res.Date)-4], res.Date[10:len(res.Date)-2], res.Date[12:len(res.Date)], 000000000, time.UTC)
+	
+	priceInt, errP := strconv.Atoi(res.Price);
+	if errP != nil {
+		fmt.Println("Error converting price")
+		return nil, errors.New("Error converting price")
+	}
+	
+	energyProposedInt, errEP := strconv.Atoi(res.EnergyProposed);
+	if errEP != nil {
+		fmt.Println("Error converting Energy proposed")
+		return nil, errors.New("Error converting Energy proposed")
+	}
+	
+	if(formattedDate.After(now) && priceInt > 0 && energyProposedInt > 0)	{
+		res.Status = "OPEN"
+		res.EnergySigned = "0"
+		res.EnergyRemaining = res.EnergyProposed	
+		
+		body, err := json.Marshal(res)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(string(body))	
+		err = stub.PutState(res.ProposalID, []byte(string(body)))
+		if err != nil {
+			fmt.Println("Failed to create User ")
+		}
+		fmt.Println("Created User  with Key : "+ res.ProposalID)
+	}
+	else{
+		fmt.Println("Proposal is not Valid. Enter future date or valid price or proposed energy value.")
+		return nil, errors.New("Error listing proposal")
+	}	
+	
 	fmt.Println("In initialize.ListProposal end ")
 	return nil,nil	
 	
