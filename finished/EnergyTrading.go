@@ -4,8 +4,8 @@ package main
 import (
 	"errors"
 	"fmt"
-	//"strconv"
-	//"time"
+	"strconv"
+	"time"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	//"github.com/energy/contracts/data"
 	//"github.com/energy/contracts/query"
