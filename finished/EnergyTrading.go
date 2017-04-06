@@ -4,8 +4,8 @@ package main
 import (
 	"errors"
 	"fmt"
-	"strconv"
-	"time"
+	//"strconv"
+	//"time"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	//"github.com/energy/contracts/data"
 	//"github.com/energy/contracts/query"
@@ -20,7 +20,7 @@ type User struct{
 	UserID string `json:"UserID"`
 	FirstName string `json:"FirstName"`
 	LastName string `json:"LastName"`
-	SmartMeterId string `json:"SmartMeterId"`
+	SmartMeterID string `json:"SmartMeterID"`
 	UserType string `json:"UserType"`
 	BuyPrice string `json:"BuyPrice"`
 	SellPrice string `json:"SellPrice"`
@@ -55,13 +55,14 @@ type Contract struct{
 	ContractID string `json:"ContractID"`
 	Date string `json:"Date"`	
 	EnergySigned string `json:"EnergySigned"`
+	EnergyConsumed string `json:"EnergyConsumed"`
 	Status string `json:"Status"`
 	Price string `json:"Price"`
 	BatteryBuyPrice string `json:"BatteryBuyPrice"`
 	BatterySellPrice string `json:"BatterySellPrice"`
 	GridPrice string `json:"GridPrice"`
 	PlatformComission string `json:"PlatformComission"`
-	Producer string `json:"producer"`	
+	Producer string `json:"Producer"`	
 	Consumer string `json:"Consumer"`	
 	Battery string `json:"Battery"`	
 	Grid string `json:"Grid"`
@@ -210,8 +211,8 @@ func SetPlatformCharge(chargeValue string, stub shim.ChaincodeStubInterface) ([]
 	fmt.Println("In services.SetPlatformCharge start ")
 	//chargeValue :=args[0]
 	
-	key := PlatformCharges
-	err = stub.PutState(PlatformCharges,chargeValue)
+	key := "PlatformCharges"
+	err = stub.PutState(key,chargeValue)
 	
 	fmt.Println("Created Charge  with Key : "+ key)
 	fmt.Println("In initialize.SetPlatformCharge end ")
@@ -272,13 +273,13 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 	res.GridPrice = "0"
 	res.PlatformComission = "0"
 	//producer = <proposal>-producer
-	res.producer = "0"
+	res.Producer = "0"
 	res.Consumer = res.UserID
 	res.Battery = "null"
 	//Grid = <gridUser>-usrid
 	res.Grid = "0"
 	//platform = <platform>-platformid
-	res.platform = "0"
+	res.Platform = "0"
 	
 	
 	body, err := json.Marshal(res)
