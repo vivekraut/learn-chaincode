@@ -382,9 +382,11 @@ func ListProposal(proposalJSON string, stub shim.ChaincodeStubInterface) ([]byte
 		return nil, errors.New("Error receiving  Users")
 	}
 	
+	
+	
 	now := time.Now()
 	//Getting the date only 	
-	dateValue := res.Date[:len(res.Date)-6]
+	//dateValue := res.Date[:len(res.Date)-6]
 	//20170406122460
 	
 	yearVal, err  := strconv.Atoi(res.Date[:len(res.Date)-10])
@@ -430,7 +432,7 @@ func ListProposal(proposalJSON string, stub shim.ChaincodeStubInterface) ([]byte
 		return nil, errors.New("Error converting Energy proposed")
 	}
 	
-	if(formattedDate.After(now) && priceInt > 0 && energyProposedInt > 0)	{
+	if(formattedDate.After(now) && priceInt > 0 && energyProposedInt > 0 && users.UserID != "")	{
 		res.Status = "OPEN"
 		res.EnergySigned = "0"
 		res.EnergyRemaining = res.EnergyProposed	
