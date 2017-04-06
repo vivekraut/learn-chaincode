@@ -390,7 +390,8 @@ func ListProposal(proposalJSON string, stub shim.ChaincodeStubInterface) ([]byte
 	yearVal, err  := strconv.Atoi(res.Date[:len(res.Date)-10])
 	if (err != nil ){
 		fmt.Println("Please pass integer ")
-	}
+	}	
+	
 	monthVal, err  := strconv.Atoi(res.Date[4:len(res.Date)-8])
 	if (err != nil ){
 		fmt.Println("Please pass integer ")
@@ -414,11 +415,8 @@ func ListProposal(proposalJSON string, stub shim.ChaincodeStubInterface) ([]byte
 	
 	//formattedDate, errD := time.Date(strconv.Atoi(res.Date[:len(res.Date)-10]), strconv.Atoi(res.Date[4:len(res.Date)-8]), //strconv.Atoi(res.Date[6:len(res.Date)-6]), strconv.Atoi(res.Date[8:len(res.Date)-4]), strconv.Atoi(res.Date[10:len(res.Date)-2]), //strconv.Atoi(res.Date[12:len(res.Date)]), 000000000, time.UTC)
 	
-	formattedDate, errD := time.Date(yearVal, monthVal, dayVal, hourVal, minutesVal, secondsVal, 000000000, time.UTC)
-	if errD != nil {
-		fmt.Println("Error fromatting date")
-		return nil, errors.New("Error fromatting date")
-	}
+	formattedDate := time.Date(yearVal, time.Month(monthVal), dayVal, hourVal, minutesVal, secondsVal, 0, time.UTC)
+	
 	
 	priceInt, errP := strconv.Atoi(res.Price);
 	if errP != nil {
