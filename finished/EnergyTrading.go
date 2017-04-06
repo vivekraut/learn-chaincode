@@ -12,7 +12,6 @@ import (
 	"encoding/json"
 )
 
-
 type EnergyTradingChainCode struct {
 }
 
@@ -139,9 +138,49 @@ func (self *EnergyTradingChainCode) Query(stub shim.ChaincodeStubInterface, func
 		//fmt.Println("Error retrieving function  ")
 		//return nil, err
 	//}
-	//return bytes,nil
-	return nil,nil
+	
+	bytes, err:= QueryDetails(stub, function,args)
+	if err != nil {
+		fmt.Println("Error retrieving function  ")
+		return nil, err
+	}
+	return bytes,nil
+	
 }
+
+func QueryDetails(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+	if function == "getUser" {
+		fmt.Println("Invoking getUser " + function)
+		var users User
+		users,err := GetUsers(args[0], stub)
+		if err != nil {
+			fmt.Println("Error receiving  the Users")
+			return nil, errors.New("Error receiving  Users")
+		}
+		fmt.Println("All success, returning users")
+		return json.Marshal(users)
+	}
+	return nil, errors.New("Received unknown query function name")
+
+}
+
+func GetUsers(userID string, stub shim.ChaincodeStubInterface)(User, error) {
+	fmt.Println("In query.GetUsers start ")
+
+	key := userID
+	var users User
+	userBytes, err := stub.GetState(key)
+	if err != nil {
+		fmt.Println("Error retrieving Users" , userID)
+		return users, errors.New("Error retrieving Users" + userID)
+	}
+	err = json.Unmarshal(userBytes, &users)
+	fmt.Println("Users   : " , users);
+	fmt.Println("In query.GetUsers end ")
+	return users, nil
+}
+
+
 
 
 func AddUser(userJSON string, stub shim.ChaincodeStubInterface) ([]byte, error) {
