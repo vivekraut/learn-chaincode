@@ -129,7 +129,7 @@ func (self *EnergyTradingChainCode) Invoke(stub shim.ChaincodeStubInterface,
 	
 	if function == "AddUser" {
 		fmt.Println("invoking AddUser " + function)
-		testBytes,err := AddUser(args,stub)
+		testBytes,err := AddUser(args[0],stub)
 		if err != nil {
 			fmt.Println("Error performing AddUser ")
 			return nil, err
