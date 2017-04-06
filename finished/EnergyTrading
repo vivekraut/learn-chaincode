@@ -13,6 +13,9 @@ import (
 )
 
 
+type EnergyTradingChainCode struct {
+}
+
 type User struct{
 	UserID string `json:"UserID"`
 	FirstName string `json:"FirstName"`
@@ -82,7 +85,7 @@ type Balance struct{
 }
 
 
-func (self *ClaimsProcessingChainCode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (self *EnergyTradingChainCode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fmt.Println("In Init start ")
 	
 	var UserID, SmartMeterID, UserType string 
@@ -118,6 +121,27 @@ func (self *ClaimsProcessingChainCode) Init(stub shim.ChaincodeStubInterface, fu
 	fmt.Println("Initialization No functions found ")
 	return nil, nil
 }
+
+
+func (self *EnergyTradingChainCode) Invoke(stub shim.ChaincodeStubInterface,
+	function string, args []string) ([]byte, error) {
+	fmt.Println("In Invoke with function  " + function)
+	
+	fmt.Println("invoke did not find func: " + function)
+	return nil, errors.New("Received unknown function invocation: " + function)
+}
+
+func (self *EnergyTradingChainCode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error){
+	fmt.Println("In Query with function " + function)
+	//bytes, err:= query.Query(stub, function,args)
+	//if err != nil {
+		//fmt.Println("Error retrieving function  ")
+		//return nil, err
+	//}
+	//return bytes,nil
+	return nil,nil
+}
+
 
 func AddUser(userJSON string, stub shim.ChaincodeStubInterface) ([]byte, error) {
 	fmt.Println("In services.AddUser start ")
@@ -318,3 +342,12 @@ func BalanceUpdate(balanceUpdateJSON string, stub shim.ChaincodeStubInterface) (
 	
 }
 
+
+func main() {
+	err := shim.Start(new(EnergyTradingChainCode))
+	if err != nil {
+		fmt.Printf("Error starting Simple chaincode: %s", err)
+	}
+
+
+}
