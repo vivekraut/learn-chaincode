@@ -4,7 +4,7 @@ package main
 import (
 	"errors"
 	"fmt"
-	"strconv"
+	//"strconv"
 	"time"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	//"github.com/energy/contracts/data"
@@ -386,7 +386,11 @@ func ListProposal(proposalJSON string, stub shim.ChaincodeStubInterface) ([]byte
 	//Getting the date only 	
 	dateValue := res.Date[:len(res.Date)-6]
 	//20170406122460
-	formattedDate := time.Date(res.Date[:len(res.Date)-10], res.Date[4:len(res.Date)-8], res.Date[6:len(res.Date)-6], res.Date[8:len(res.Date)-4], res.Date[10:len(res.Date)-2], res.Date[12:len(res.Date)], 000000000, time.UTC)
+	formattedDate, errD := time.Date(strconv.Atoi(res.Date[:len(res.Date)-10]), strconv.Atoi(res.Date[4:len(res.Date)-8]), strconv.Atoi(res.Date[6:len(res.Date)-6]), strconv.Atoi(res.Date[8:len(res.Date)-4]), strconv.Atoi(res.Date[10:len(res.Date)-2]), strconv.Atoi(res.Date[12:len(res.Date)]), 000000000, time.UTC)
+	if errD != nil {
+		fmt.Println("Error fromatting date")
+		return nil, errors.New("Error fromatting date")
+	}
 	
 	priceInt, errP := strconv.Atoi(res.Price);
 	if errP != nil {
