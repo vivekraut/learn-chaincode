@@ -272,7 +272,7 @@ func GetUsers(userID string, stub shim.ChaincodeStubInterface)(User, error) {
 	return users, nil
 }
 
-func GetProposals(proposalID string, stub shim.ChaincodeStubInterface)(User, error) {
+func GetProposals(proposalID string, stub shim.ChaincodeStubInterface)(Proposal, error) {
 	fmt.Println("In query.GetProposals start ")
 	key := proposalID
 	var proposals Proposal
