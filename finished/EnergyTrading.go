@@ -279,7 +279,7 @@ func GetProposals(proposalID string, stub shim.ChaincodeStubInterface)(User, err
 	proposalBytes, err := stub.GetState(key)
 	if err != nil {
 		fmt.Println("Error retrieving proposals" , proposalID)
-		return users, errors.New("Error retrieving Proposals" + proposalID)
+		return proposals, errors.New("Error retrieving Proposals" + proposalID)
 	}
 	err = json.Unmarshal(proposalBytes, &proposals)
 	fmt.Println("Proposals   : " , proposals);
