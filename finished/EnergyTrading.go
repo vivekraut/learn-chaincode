@@ -138,6 +138,72 @@ func (self *EnergyTradingChainCode) Invoke(stub shim.ChaincodeStubInterface,
 		return testBytes, nil
 	}
 	
+	if function == "SetGridPrice" {
+		fmt.Println("invoking SetGridPrice " + function)
+		testBytes,err := SetGridPrice(args[0],stub)
+		if err != nil {
+			fmt.Println("Error performing SetGridPrice ")
+			return nil, err
+		}
+		fmt.Println("Processed SetGridPrice successfully. ")
+		return testBytes, nil
+	}
+	
+	if function == "SetPlatformCharge" {
+		fmt.Println("invoking SetPlatformCharge " + function)
+		testBytes,err := SetPlatformCharge(args[0],stub)
+		if err != nil {
+			fmt.Println("Error performing SetPlatformCharge ")
+			return nil, err
+		}
+		fmt.Println("Processed SetPlatformCharge successfully. ")
+		return testBytes, nil
+	}
+	
+	if function == "ListProposal" {
+		fmt.Println("invoking ListProposal " + function)
+		testBytes,err := ListProposal(args[0],stub)
+		if err != nil {
+			fmt.Println("Error performing ListProposal ")
+			return nil, err
+		}
+		fmt.Println("Processed ListProposal successfully. ")
+		return testBytes, nil
+	}
+	
+	if function == "SignContract" {
+		fmt.Println("invoking SignContract " + function)
+		testBytes,err := SignContract(args[0],stub)
+		if err != nil {
+			fmt.Println("Error performing SignContract ")
+			return nil, err
+		}
+		fmt.Println("Processed SignContract successfully. ")
+		return testBytes, nil
+	}
+	
+	if function == "MeterReading" {
+		fmt.Println("invoking MeterReading " + function)
+		testBytes,err := MeterReading(args[0],stub)
+		if err != nil {
+			fmt.Println("Error performing MeterReading ")
+			return nil, err
+		}
+		fmt.Println("Processed MeterReading successfully. ")
+		return testBytes, nil
+	}
+	
+	if function == "BalanceUpdate" {
+		fmt.Println("invoking BalanceUpdate " + function)
+		testBytes,err := BalanceUpdate(args[0],stub)
+		if err != nil {
+			fmt.Println("Error performing BalanceUpdate ")
+			return nil, err
+		}
+		fmt.Println("Processed BalanceUpdate successfully. ")
+		return testBytes, nil
+	}
+	
 	
 	fmt.Println("invoke did not find func: " + function)
 	return nil, errors.New("Received unknown function invocation: " + function)
@@ -161,7 +227,8 @@ func (self *EnergyTradingChainCode) Query(stub shim.ChaincodeStubInterface, func
 }
 
 func QueryDetails(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-	if function == "getUser" {
+
+	if function == "GetUser" {
 		fmt.Println("Invoking getUser " + function)
 		var users User
 		users,err := GetUsers(args[0], stub)
@@ -172,6 +239,19 @@ func QueryDetails(stub shim.ChaincodeStubInterface, function string, args []stri
 		fmt.Println("All success, returning users")
 		return json.Marshal(users)
 	}
+	
+	if function == "GetProposals" {
+		fmt.Println("Invoking GetProposals " + function)
+		var proposals Proposal
+		proposals,err := GetProposals(args[0], stub)
+		if err != nil {
+			fmt.Println("Error receiving  the proposals")
+			return nil, errors.New("Error receiving  proposals")
+		}
+		fmt.Println("All success, returning proposals")
+		return json.Marshal(proposals)
+	}
+	
 	return nil, errors.New("Received unknown query function name")
 
 }
@@ -190,6 +270,21 @@ func GetUsers(userID string, stub shim.ChaincodeStubInterface)(User, error) {
 	fmt.Println("Users   : " , users);
 	fmt.Println("In query.GetUsers end ")
 	return users, nil
+}
+
+func GetProposals(proposalID string, stub shim.ChaincodeStubInterface)(User, error) {
+	fmt.Println("In query.GetProposals start ")
+	key := proposalID
+	var proposals Proposal
+	proposalBytes, err := stub.GetState(key)
+	if err != nil {
+		fmt.Println("Error retrieving proposals" , proposalID)
+		return users, errors.New("Error retrieving Proposals" + proposalID)
+	}
+	err = json.Unmarshal(proposalBytes, &proposals)
+	fmt.Println("Proposals   : " , proposals);
+	fmt.Println("In query.GetProposals end ")
+	return proposals, nil
 }
 
 
