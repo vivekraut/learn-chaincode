@@ -4,7 +4,7 @@ package main
 import (
 	"errors"
 	"fmt"
-	//"strconv"
+	"strconv"
 	"time"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	//"github.com/energy/contracts/data"
@@ -386,7 +386,35 @@ func ListProposal(proposalJSON string, stub shim.ChaincodeStubInterface) ([]byte
 	//Getting the date only 	
 	dateValue := res.Date[:len(res.Date)-6]
 	//20170406122460
-	formattedDate, errD := time.Date(strconv.Atoi(res.Date[:len(res.Date)-10]), strconv.Atoi(res.Date[4:len(res.Date)-8]), strconv.Atoi(res.Date[6:len(res.Date)-6]), strconv.Atoi(res.Date[8:len(res.Date)-4]), strconv.Atoi(res.Date[10:len(res.Date)-2]), strconv.Atoi(res.Date[12:len(res.Date)]), 000000000, time.UTC)
+	
+	yearVal, err  := strconv.Atoi(res.Date[:len(res.Date)-10])
+	if (err != nil ){
+		fmt.Println("Please pass integer ")
+	}
+	monthVal, err  := strconv.Atoi(res.Date[4:len(res.Date)-8])
+	if (err != nil ){
+		fmt.Println("Please pass integer ")
+	}
+	dayVal, err  := strconv.Atoi(res.Date[6:len(res.Date)-6])
+	if (err != nil ){
+		fmt.Println("Please pass integer ")
+	}
+	hourVal, err  := strconv.Atoi(res.Date[8:len(res.Date)-4])
+	if (err != nil ){
+		fmt.Println("Please pass integer ")
+	}
+	minutesVal, err  := strconv.Atoi(res.Date[10:len(res.Date)-2])
+	if (err != nil ){
+		fmt.Println("Please pass integer ")
+	}
+	secondsVal, err  := strconv.Atoi(res.Date[12:len(res.Date)])
+	if (err != nil ){
+		fmt.Println("Please pass integer ")
+	}
+	
+	//formattedDate, errD := time.Date(strconv.Atoi(res.Date[:len(res.Date)-10]), strconv.Atoi(res.Date[4:len(res.Date)-8]), //strconv.Atoi(res.Date[6:len(res.Date)-6]), strconv.Atoi(res.Date[8:len(res.Date)-4]), strconv.Atoi(res.Date[10:len(res.Date)-2]), //strconv.Atoi(res.Date[12:len(res.Date)]), 000000000, time.UTC)
+	
+	formattedDate, errD := time.Date(yearVal, monthVal, dayVal, hourVal, minutesVal, secondsVal, 000000000, time.UTC)
 	if errD != nil {
 		fmt.Println("Error fromatting date")
 		return nil, errors.New("Error fromatting date")
