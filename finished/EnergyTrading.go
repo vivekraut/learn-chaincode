@@ -77,7 +77,7 @@ type Contract struct{
 type Meter struct{
 	EnergyReadingId string `json:"EnergyReadingId"`	
 	Date string `json:"Date"`	
-	SmartMeterId string `json:"SmartMeterId"`
+	SmartMeterID string `json:"SmartMeterID"`
 	EnergyAmount string `json:"EnergyAmount"`
 	EnergyUnit string `json:"EnergyUnit"`	
 	
@@ -576,8 +576,8 @@ func ListProposal(proposalJSON string, stub shim.ChaincodeStubInterface) ([]byte
 	
 	if(formattedDate.After(now) && priceInt > 0 && energyProposedInt > 0 && users.UserID != "")	{		
 		var priceFloat float64
-		priceFloat = priceInt*1.1
-		if(priceFloat > gridPrice.Price){
+		priceFloat = float64(priceInt)*1.1
+		if(priceFloat > float64(gridPrice.Price)){
 			fmt.Println("Error - Price too high")
 			return nil, errors.New("Error - Price too high")		
 		}
@@ -683,7 +683,7 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 	formattedDate := time.Date(yearVal, time.Month(monthVal), dayVal, hourVal, minutesVal, secondsVal, 0, time.UTC)
 	
 	
-	gridPriceInfo,err := GetGridPrice("0" + "_" + "Grid" + "_" + yearVal+monthVal+dayVal, stub)
+	gridPriceInfo,err := GetGridPrice("0" + "_" + "Grid" + "_" + strconv.Itoa(yearVal)+strconv.Itoa(monthVal)+strconv.Itoa(dayVal), stub)
 	if err != nil {
 		fmt.Println("Error retrieving the grid price details")
 		return nil, errors.New("Error retrieving the grid price details")
@@ -708,7 +708,7 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 	}
 	
 	if(producerInfo.UserID != "" && consumerInfo.UserID != ""){		
-		if(proposal.proposalID != ""){		
+		if(proposal.ProposalID != ""){		
 			if(formattedDate.After(now) && energySignedInt > 0)	{	
 				if(gridUserInfo.UserID != "" && gridPriceInfo.UserID != ""){					
 					gridUserPrice := gridPriceInfo.Price
@@ -737,8 +737,8 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 					res.GridPrice = gridUserPrice
 					res.PlatformComission = "0"
 					//producer = <proposal>-producer
-					res.Producer = producerInfo.UserID
-					res.Consumer = consumerInfo.UserID
+					//res.Producer = producerInfo.UserID
+					//res.Consumer = consumerInfo.UserID
 					res.Battery = "null"
 					//Grid = <gridUser>-usrid
 					res.Grid = gridUserInfo.UserID
@@ -849,6 +849,7 @@ func MeterReading(meterReadingJSON string, stub shim.ChaincodeStubInterface) ([]
 	
 	if(nowString[:10] == dateString[:10]){
 		if(energyAmtInt != 0){
+			//var userIDByte res.UserID
 			userIDValBytes, err := stub.GetState(res.SmartMeterID)
 			if err != nil {
 				fmt.Println("Error retrieving user ID")
