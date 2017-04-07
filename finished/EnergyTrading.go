@@ -577,7 +577,7 @@ func ListProposal(proposalJSON string, stub shim.ChaincodeStubInterface) ([]byte
 	if(formattedDate.After(now) && priceInt > 0 && energyProposedInt > 0 && users.UserID != "")	{		
 		var priceFloat float64
 		priceFloat = float64(priceInt)*1.1
-		if(priceFloat > float64(gridPrice.Price)){
+		if(priceFloat > float64(strconv.Atoi(gridPrice.Price))){
 			fmt.Println("Error - Price too high")
 			return nil, errors.New("Error - Price too high")		
 		}
@@ -853,7 +853,7 @@ func MeterReading(meterReadingJSON string, stub shim.ChaincodeStubInterface) ([]
 			userIDValBytes, err := stub.GetState(res.SmartMeterID)
 			if err != nil {
 				fmt.Println("Error retrieving user ID")
-				return users, errors.New("Error retrieving User Details")
+				return nil, errors.New("Error retrieving User Details")
 			}
 			userIDVal := string(userIDValBytes)
 			
