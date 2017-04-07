@@ -577,7 +577,9 @@ func ListProposal(proposalJSON string, stub shim.ChaincodeStubInterface) ([]byte
 	if(formattedDate.After(now) && priceInt > 0 && energyProposedInt > 0 && users.UserID != "")	{		
 		var priceFloat float64
 		priceFloat = float64(priceInt)*1.1
-		if(priceFloat > float64(strconv.Atoi(gridPrice.Price))){
+		var priceInt int64
+		priceInt = strconv.Atoi(gridPrice.Price))
+		if(priceFloat > float64(priceInt){
 			fmt.Println("Error - Price too high")
 			return nil, errors.New("Error - Price too high")		
 		}
