@@ -465,8 +465,8 @@ func SetGridPrice(gridPriceJSON string, stub shim.ChaincodeStubInterface) ([]byt
 		fmt.Println("Failed to unmarshal GridPrice ")
 	}	
 	fmt.Println("User ID : ",res.UserID)	
-		
-	err = stub.PutState(res.UserID + "_" + res.Date, []byte(gridPriceJSON))
+	dateValue := res.Date[:len(res.Date)-6]	
+	err = stub.PutState(res.UserID + "_" + dateValue, []byte(gridPriceJSON))
 	if err != nil {
 		fmt.Println("Failed to create User ")
 	}
@@ -558,10 +558,11 @@ func ListProposal(proposalJSON string, stub shim.ChaincodeStubInterface) ([]byte
 	
 	gridPrice,err := GetGridPrice(gridPriceKey, stub)
 	if err != nil {
-		fmt.Println("Error receiving  the Users")
-		return nil, errors.New("Error receiving  Users")
+		fmt.Println("Error retrieving grid price")
+		return nil, errors.New("Error retrieving grid price")
 	}
 	
+	fmt.Println("Grid Price -->"+res.Price)
 	priceInt, errP := strconv.Atoi(res.Price);
 	if errP != nil {
 		fmt.Println("Error converting price")
