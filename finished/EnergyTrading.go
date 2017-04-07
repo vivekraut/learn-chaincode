@@ -286,7 +286,7 @@ func QueryDetails(stub shim.ChaincodeStubInterface, function string, args []stri
 	if function == "GetContract" {
 		fmt.Println("Invoking GetContract " + function)
 		var contracts Contract
-		proposals,err := GetContract(args[0], stub)
+		contracts,err := GetContract(args[0], stub)
 		if err != nil {
 			fmt.Println("Error retrieving the contract")
 			return nil, errors.New("Error retrieving the contract")
@@ -655,7 +655,7 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 	proposal,err := GetProposals(res.ProposalID, stub)
 	now := time.Now()
 	//Getting the date only 	
-	dateValue := res.Date[:len(res.Date)-6]
+	//dateValue := res.Date[:len(res.Date)-6]
 	//20170406122460
 	
 	yearVal, err  := strconv.Atoi(res.Date[:len(res.Date)-10])
@@ -741,7 +741,7 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 					res.BatterySellPrice = "0"
 					//GridPrice = <gridUser>-price
 					res.GridPrice = gridUserPrice
-					res.PlatformComission = "0"
+					res.PlatformComission = platformCharge
 					//producer = <proposal>-producer
 					//res.Producer = producerInfo.UserID
 					//res.Consumer = consumerInfo.UserID
@@ -812,7 +812,7 @@ func MeterReading(meterReadingJSON string, stub shim.ChaincodeStubInterface) ([]
 	}	
 	fmt.Println("EnergyReadingId  : ",res.EnergyReadingId)
 	
-	var readingDate = res.Date	
+	//var readingDate = res.Date	
 	
 	yearVal, err  := strconv.Atoi(res.Date[:len(res.Date)-10])
 	if (err != nil ){
@@ -899,7 +899,18 @@ func MeterReading(meterReadingJSON string, stub shim.ChaincodeStubInterface) ([]
 			} else{
 				energyConsumedVal := energyConsInt 
 				energyProdVal := energyProdInt + energyAmtInt*(-1)
-			}			
+			}		
+
+			users.EnergyConsumed, errEC = 	strconv.Itoa(energyConsumedVal)
+			if errEC != nil {
+				fmt.Println("Error converting Energy Consumed")
+				return nil, errors.New("Error converting Energy Consumed")
+			}
+			users.EnergyProduced, errEP = 	strconv.Itoa(energyProdVal)
+			if errEP != nil {
+				fmt.Println("Error converting Energy Produced")
+				return nil, errors.New("Error converting Energy Produced")
+			}
 			
 			bodyUser, err := json.Marshal(users)
 			if err != nil {
