@@ -336,7 +336,7 @@ func GetGridPrice(userIDDate string, stub shim.ChaincodeStubInterface)(GridPrice
 	gridPriceBytes, err := stub.GetState(key)
 	if err != nil {
 		fmt.Println("Error retrieving gridPrice" , userIDDate)
-		return users, errors.New("Error retrieving Grid Price for the given user in this date" + userIDDate)
+		return gridPrice, errors.New("Error retrieving Grid Price for the given user in this date" + userIDDate)
 	}
 	err = json.Unmarshal(gridPriceBytes, &gridPrice)
 	fmt.Println("Grid Price   : " , gridPrice);
@@ -345,14 +345,14 @@ func GetGridPrice(userIDDate string, stub shim.ChaincodeStubInterface)(GridPrice
 
 }
 
-func GetPlatformCharge(platformID string, stub shim.ChaincodeStubInterface)(GridPrice, error) {
+func GetPlatformCharge(platformID string, stub shim.ChaincodeStubInterface)(PlatformCharge, error) {
 	fmt.Println("In query.GetPlatformCharge start ")
 	key := platformID
 	var platformCharge PlatformCharge
 	platformChargeBytes, err := stub.GetState(key)
 	if err != nil {
 		fmt.Println("Error retrieving gridPrice" , platformID)
-		return users, errors.New("Error retrieving Grid Price for the given user in this date" + platformID)
+		return platformCharge, errors.New("Error retrieving Grid Price for the given user in this date" + platformID)
 	}
 	err = json.Unmarshal(platformChargeBytes, &platformCharge)
 	fmt.Println("Platform Charge   : " , platformCharge);
@@ -386,7 +386,7 @@ func GetContract(contractID string, stub shim.ChaincodeStubInterface)(Contract, 
 		fmt.Println("Error retrieving contract" , contractID)
 		return contracts, errors.New("Error retrieving contract" + contractID)
 	}
-	err = json.Unmarshal(proposalBytes, &contracts)
+	err = json.Unmarshal(contractBytes, &contracts)
 	fmt.Println("Contract   : " , contracts);
 	fmt.Println("In query.GetContract end ")
 	return contracts, nil
@@ -440,8 +440,8 @@ func AddUser(userJSON string, stub shim.ChaincodeStubInterface) ([]byte, error) 
 		fmt.Println("Failed to create User ")
 	}
 	
-	err2 = stub.PutState(res.SmartMeterID, []byte(res.UserID))
-	if err2 != nil {
+	err = stub.PutState(res.SmartMeterID, []byte(res.UserID))
+	if err != nil {
 		fmt.Println("Failed to set smart meter ID ")
 	}
 	
@@ -488,7 +488,7 @@ func SetPlatformCharge(platformJSON string, stub shim.ChaincodeStubInterface) ([
 	}	
 	
 	//key := "PlatformCharges"
-	err := stub.PutState(res.PlatformID, []byte(platformJSON))
+	err = stub.PutState(res.PlatformID, []byte(platformJSON))
 	if err != nil {
 		fmt.Println("Failed to Set Platform Charge ")
 	}
@@ -510,7 +510,7 @@ func ListProposal(proposalJSON string, stub shim.ChaincodeStubInterface) ([]byte
 	fmt.Println("ProposalID  : ",res.ProposalID)
 	
 	var users User
-	users,err := GetUsers(res.UserID + "_" + "Prosumer", stub)
+	users,err = GetUsers(res.UserID + "_" + "Prosumer", stub)
 	if err != nil {
 		fmt.Println("Error receiving  the Users")
 		return nil, errors.New("Error receiving  Users")
@@ -857,7 +857,7 @@ func MeterReading(meterReadingJSON string, stub shim.ChaincodeStubInterface) ([]
 			userIDVal := string(userIDValBytes)
 			
 			var users User			
-			users,err := GetUsers(userIDVal + "_" + "Prosumer", stub)
+			users,err = GetUsers(userIDVal + "_" + "Prosumer", stub)
 			if err != nil {
 				fmt.Println("Error receiving  the Users")
 				return nil, errors.New("Error receiving  Users")
