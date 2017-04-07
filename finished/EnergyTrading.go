@@ -893,16 +893,19 @@ func MeterReading(meterReadingJSON string, stub shim.ChaincodeStubInterface) ([]
 				return nil, errors.New("Error converting Energy Produced")
 			}
 			
+			
 			if(energyAmtInt > 0){
 				energyConsumedVal := energyConsInt + energyAmtInt
 				energyProdVal := energyProdInt
+				users.EnergyConsumed = 	strconv.Itoa(energyConsumedVal)			
+				users.EnergyProduced = 	strconv.Itoa(energyProdVal)		
 			} else{
 				energyConsumedVal := energyConsInt 
 				energyProdVal := energyProdInt + energyAmtInt*(-1)
+				users.EnergyConsumed = 	strconv.Itoa(energyConsumedVal)			
+				users.EnergyProduced = 	strconv.Itoa(energyProdVal)		
 			}		
 
-			users.EnergyConsumed = 	strconv.Itoa(energyConsumedVal)			
-			users.EnergyProduced = 	strconv.Itoa(energyProdVal)		
 			
 			bodyUser, err := json.Marshal(users)
 			if err != nil {
