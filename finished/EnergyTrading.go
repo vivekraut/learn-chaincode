@@ -577,7 +577,7 @@ func ListProposal(proposalJSON string, stub shim.ChaincodeStubInterface) ([]byte
 	if(formattedDate.After(now) && priceInt > 0 && energyProposedInt > 0 && users.UserID != "")	{		
 		var priceFloat float64
 		priceFloat = float64(priceInt)*1.1
-		var priceInt int64
+		//var priceInt int64
 		priceInt, errGP := strconv.Atoi(gridPrice.Price)
 		if errGP != nil {
 			fmt.Println("Error converting price")
