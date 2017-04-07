@@ -34,6 +34,11 @@ type GridPrice struct{
 	Price string `json:"Price"`		
 }
 
+type PlatformCharge struct{
+	PlatformID string `json:"PlatformID"`
+	Charge string `json:"Charge"`		
+}
+
 
 type Proposal struct{
 	UserID string `json:"UserID"`
@@ -44,8 +49,8 @@ type Proposal struct{
 	Status string `json:"Status"`
 	EnergySigned string `json:"EnergySigned"`
 	EnergyRemaining string `json:"EnergyRemaining"`
-	//Consumer []Consumer `json:"Consumer"`
-	//Contract []Contract `json:"Contract"`
+	Consumer []User `json:"Consumer"`
+	Contract []Contract `json:"Contract"`
 }
 
 type Contract struct{
@@ -61,8 +66,8 @@ type Contract struct{
 	BatterySellPrice string `json:"BatterySellPrice"`
 	GridPrice string `json:"GridPrice"`
 	PlatformComission string `json:"PlatformComission"`
-	Producer string `json:"Producer"`	
-	Consumer string `json:"Consumer"`	
+	Producer User `json:"Producer"`	
+	Consumer User `json:"Consumer"`	
 	Battery string `json:"Battery"`	
 	Grid string `json:"Grid"`
 	Platform string `json:"Platform"`
@@ -240,7 +245,33 @@ func QueryDetails(stub shim.ChaincodeStubInterface, function string, args []stri
 		return json.Marshal(users)
 	}
 	
-	if function == "GetProposals" {
+	if function == "GetGridPrice" {
+		fmt.Println("Invoking GetGridPrice " + function)
+		var gridPrice GridPrice
+		gridPrice,err := GetGridPrice(args[0], stub)
+		if err != nil {
+			fmt.Println("Error retrieving the Grid Price")
+			return nil, errors.New("Error retrieving the Grid Price")
+		}
+		fmt.Println("All success, returning grid price")
+		return json.Marshal(gridPrice)
+		
+	}
+	
+	if function == "GetPlatformCharge" {
+		fmt.Println("Invoking GetPlatformCharge " + function)
+		var platformCharge PlatformCharge
+		platformCharge,err := GetPlatformCharge(args[0], stub)
+		if err != nil {
+			fmt.Println("Error retrieving the Platform Charge")
+			return nil, errors.New("Error retrieving the Platform Charge")
+		}
+		fmt.Println("All success, returning Platform Charge")
+		return json.Marshal(platformCharge)
+		
+	}
+	
+	if function == "GetProposal" {
 		fmt.Println("Invoking GetProposals " + function)
 		var proposals Proposal
 		proposals,err := GetProposals(args[0], stub)
@@ -250,6 +281,30 @@ func QueryDetails(stub shim.ChaincodeStubInterface, function string, args []stri
 		}
 		fmt.Println("All success, returning proposals")
 		return json.Marshal(proposals)
+	}
+	
+	if function == "GetContract" {
+		fmt.Println("Invoking GetContract " + function)
+		var contracts Contract
+		proposals,err := GetContract(args[0], stub)
+		if err != nil {
+			fmt.Println("Error retrieving the contract")
+			return nil, errors.New("Error retrieving the contract")
+		}
+		fmt.Println("All success, returning contract")
+		return json.Marshal(contracts)
+	}
+	
+	if function == "GetMeterReading" {
+		fmt.Println("Invoking GetMeterReading " + function)
+		var meterReading Meter
+		meterReading,err := GetMeterReading(args[0], stub)
+		if err != nil {
+			fmt.Println("Error retrieving the meter reading")
+			return nil, errors.New("Error retrieving the meter reading")
+		}
+		fmt.Println("All success, returning meter reading")
+		return json.Marshal(meterReading)
 	}
 	
 	return nil, errors.New("Received unknown query function name")
@@ -272,6 +327,40 @@ func GetUsers(userID string, stub shim.ChaincodeStubInterface)(User, error) {
 	return users, nil
 }
 
+
+func GetGridPrice(userIDDate string, stub shim.ChaincodeStubInterface)(GridPrice, error) {
+	fmt.Println("In query.GetGridPrice start ")
+
+	key := userIDDate
+	var gridPrice GridPrice
+	gridPriceBytes, err := stub.GetState(key)
+	if err != nil {
+		fmt.Println("Error retrieving gridPrice" , userIDDate)
+		return users, errors.New("Error retrieving Grid Price for the given user in this date" + userIDDate)
+	}
+	err = json.Unmarshal(gridPriceBytes, &gridPrice)
+	fmt.Println("Grid Price   : " , gridPrice);
+	fmt.Println("In query.GetGridPrice end ")
+	return gridPrice, nil
+
+}
+
+func GetPlatformCharge(platformID string, stub shim.ChaincodeStubInterface)(GridPrice, error) {
+	fmt.Println("In query.GetPlatformCharge start ")
+	key := platformID
+	var platformCharge PlatformCharge
+	platformChargeBytes, err := stub.GetState(key)
+	if err != nil {
+		fmt.Println("Error retrieving gridPrice" , platformID)
+		return users, errors.New("Error retrieving Grid Price for the given user in this date" + platformID)
+	}
+	err = json.Unmarshal(platformChargeBytes, &platformCharge)
+	fmt.Println("Platform Charge   : " , platformCharge);
+	fmt.Println("In query.GetPlatformCharge end ")
+	return platformCharge, nil
+}
+
+
 func GetProposals(proposalID string, stub shim.ChaincodeStubInterface)(Proposal, error) {
 	fmt.Println("In query.GetProposals start ")
 	key := proposalID
@@ -286,6 +375,38 @@ func GetProposals(proposalID string, stub shim.ChaincodeStubInterface)(Proposal,
 	fmt.Println("In query.GetProposals end ")
 	return proposals, nil
 }
+
+
+func GetContract(contractID string, stub shim.ChaincodeStubInterface)(Contract, error) {
+	fmt.Println("In query.GetContract start ")
+	key := contractID
+	var contracts Contract
+	contractBytes, err := stub.GetState(key)
+	if err != nil {
+		fmt.Println("Error retrieving contract" , contractID)
+		return contracts, errors.New("Error retrieving contract" + contractID)
+	}
+	err = json.Unmarshal(proposalBytes, &contracts)
+	fmt.Println("Contract   : " , contracts);
+	fmt.Println("In query.GetContract end ")
+	return contracts, nil
+}
+
+func GetMeterReading(energyReadingID string, stub shim.ChaincodeStubInterface)(Meter, error) {
+	fmt.Println("In query.GetMeterReading start ")
+	key := energyReadingID
+	var meterReading Meter
+	meterReadingBytes, err := stub.GetState(key)
+	if err != nil {
+		fmt.Println("Error retrieving meter reading" , energyReadingID)
+		return meterReading, errors.New("Error retrieving meter reading" + energyReadingID)
+	}
+	err = json.Unmarshal(meterReadingBytes, &meterReading)
+	fmt.Println("Contract   : " , meterReading);
+	fmt.Println("In query.GetMeterReading end ")
+	return meterReading, nil
+}
+
 
 
 func AddUser(userJSON string, stub shim.ChaincodeStubInterface) ([]byte, error) {
@@ -314,10 +435,16 @@ func AddUser(userJSON string, stub shim.ChaincodeStubInterface) ([]byte, error) 
         panic(err)
     }
     fmt.Println(string(body))	
-	err = stub.PutState(res.UserID, []byte(string(body)))
+	err = stub.PutState(res.UserID + "_" + res.UserType, []byte(string(body)))
 	if err != nil {
 		fmt.Println("Failed to create User ")
 	}
+	
+	err2 = stub.PutState(res.SmartMeterID, []byte(res.UserID))
+	if err2 != nil {
+		fmt.Println("Failed to set smart meter ID ")
+	}
+	
 	fmt.Println("Created User  with Key : "+ res.UserID)
 	fmt.Println("In initialize.AddUser end ")
 	return nil,nil	
@@ -350,16 +477,22 @@ func SetGridPrice(gridPriceJSON string, stub shim.ChaincodeStubInterface) ([]byt
 }
 
 
-func SetPlatformCharge(chargeValue string, stub shim.ChaincodeStubInterface) ([]byte, error) {
+func SetPlatformCharge(platformJSON string, stub shim.ChaincodeStubInterface) ([]byte, error) {
 	fmt.Println("In services.SetPlatformCharge start ")
 	//chargeValue :=args[0]
 	
-	key := "PlatformCharges"
-	err := stub.PutState(key, []byte(chargeValue))
+	res := &PlatformCharge{}
+	err := json.Unmarshal([]byte(platformJSON), res)
+	if err != nil {
+		fmt.Println("Failed to unmarshal PlatformCharge ")
+	}	
+	
+	//key := "PlatformCharges"
+	err := stub.PutState(res.PlatformID, []byte(platformJSON))
 	if err != nil {
 		fmt.Println("Failed to Set Platform Charge ")
 	}
-	fmt.Println("Created Charge  with Key : "+ key)
+	fmt.Println("Created Charge  with Key : "+ res.PlatformID)
 	fmt.Println("In initialize.SetPlatformCharge end ")
 	return nil,nil	
 	
@@ -376,17 +509,17 @@ func ListProposal(proposalJSON string, stub shim.ChaincodeStubInterface) ([]byte
 	}	
 	fmt.Println("ProposalID  : ",res.ProposalID)
 	
-	users,err := GetUsers(res.UserID, stub)
+	var users User
+	users,err := GetUsers(res.UserID + "_" + "Prosumer", stub)
 	if err != nil {
 		fmt.Println("Error receiving  the Users")
 		return nil, errors.New("Error receiving  Users")
 	}
 	
 	
-	
 	now := time.Now()
 	//Getting the date only 	
-	//dateValue := res.Date[:len(res.Date)-6]
+	dateValue := res.Date[:len(res.Date)-6]
 	//20170406122460
 	
 	yearVal, err  := strconv.Atoi(res.Date[:len(res.Date)-10])
@@ -419,6 +552,15 @@ func ListProposal(proposalJSON string, stub shim.ChaincodeStubInterface) ([]byte
 	
 	formattedDate := time.Date(yearVal, time.Month(monthVal), dayVal, hourVal, minutesVal, secondsVal, 0, time.UTC)
 	
+	var gridPriceKey string
+	gridPriceKey = res.UserID + "_" + dateValue
+	fmt.Println("Grid Price Key...."+gridPriceKey)
+	
+	gridPrice,err := GetGridPrice(gridPriceKey, stub)
+	if err != nil {
+		fmt.Println("Error receiving  the Users")
+		return nil, errors.New("Error receiving  Users")
+	}
 	
 	priceInt, errP := strconv.Atoi(res.Price);
 	if errP != nil {
@@ -432,7 +574,14 @@ func ListProposal(proposalJSON string, stub shim.ChaincodeStubInterface) ([]byte
 		return nil, errors.New("Error converting Energy proposed")
 	}
 	
-	if(formattedDate.After(now) && priceInt > 0 && energyProposedInt > 0 && users.UserID != "")	{
+	if(formattedDate.After(now) && priceInt > 0 && energyProposedInt > 0 && users.UserID != "")	{		
+		var priceFloat float64
+		priceFloat = priceInt*1.1
+		if(priceFloat > gridPrice.Price){
+			fmt.Println("Error - Price too high")
+			return nil, errors.New("Error - Price too high")		
+		}
+		
 		res.Status = "OPEN"
 		res.EnergySigned = "0"
 		res.EnergyRemaining = res.EnergyProposed	
@@ -469,40 +618,182 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 	}	
 	fmt.Println("ContractID  : ",res.ContractID)
 	
-	res.Status = "SIGNED"
-	//res.EnergySigned = "0"
-	res.EnergyConsumed = "0"
-	//Price = <proposal>-Price. Get Proposal price
-	res.Price = "0"
-	res.BatteryBuyPrice = "0"
-	res.BatterySellPrice = "0"
-	//GridPrice = <gridUser>-price
-	res.GridPrice = "0"
-	res.PlatformComission = "0"
-	//producer = <proposal>-producer
-	res.Producer = "0"
-	res.Consumer = res.UserID
-	res.Battery = "null"
-	//Grid = <gridUser>-usrid
-	res.Grid = "0"
-	//platform = <platform>-platformid
-	res.Platform = "0"
+	var producer User
+	var consumer User
+	producer = res.Producer
+	consumer = res.Consumer
 	
+	prodId := producer.UserID
+	consumerId := consumer.UserID
 	
-	body, err := json.Marshal(res)
+	producerInfo,err := GetUsers(prodId + "_" + "Prosumer", stub)
 	if err != nil {
-        panic(err)
-    }
-    fmt.Println(string(body))	
-	err = stub.PutState(res.ContractID, []byte(string(body)))
-	if err != nil {
-		fmt.Println("Failed to create User ")
+		fmt.Println("Error retrieving the producer details")
+		return nil, errors.New("Error retrieving the producer details")
 	}
-	fmt.Println("Signed Contract  with Key : "+ res.ContractID)
+	
+	consumerInfo,err := GetUsers(consumerId + "_" + "Prosumer", stub)
+	if err != nil {
+		fmt.Println("Error retrieving the producer details")
+		return nil, errors.New("Error retrieving the consumer details")
+	}
+	
+	gridUserInfo,err := GetUsers("0" + "_" + "Grid", stub)
+	if err != nil {
+		fmt.Println("Error retrieving the grid user details")
+		return nil, errors.New("Error retrieving the grid user details")
+	}
+	
+	
+	
+	proposal,err := GetProposals(res.ProposalID, stub)
+	now := time.Now()
+	//Getting the date only 	
+	dateValue := res.Date[:len(res.Date)-6]
+	//20170406122460
+	
+	yearVal, err  := strconv.Atoi(res.Date[:len(res.Date)-10])
+	if (err != nil ){
+		fmt.Println("Please pass integer ")
+	}	
+	
+	monthVal, err  := strconv.Atoi(res.Date[4:len(res.Date)-8])
+	if (err != nil ){
+		fmt.Println("Please pass integer ")
+	}
+	dayVal, err  := strconv.Atoi(res.Date[6:len(res.Date)-6])
+	if (err != nil ){
+		fmt.Println("Please pass integer ")
+	}
+	hourVal, err  := strconv.Atoi(res.Date[8:len(res.Date)-4])
+	if (err != nil ){
+		fmt.Println("Please pass integer ")
+	}
+	minutesVal, err  := strconv.Atoi(res.Date[10:len(res.Date)-2])
+	if (err != nil ){
+		fmt.Println("Please pass integer ")
+	}
+	secondsVal, err  := strconv.Atoi(res.Date[12:len(res.Date)])
+	if (err != nil ){
+		fmt.Println("Please pass integer ")
+	}
+	
+	//formattedDate, errD := time.Date(strconv.Atoi(res.Date[:len(res.Date)-10]), strconv.Atoi(res.Date[4:len(res.Date)-8]), //strconv.Atoi(res.Date[6:len(res.Date)-6]), strconv.Atoi(res.Date[8:len(res.Date)-4]), strconv.Atoi(res.Date[10:len(res.Date)-2]), //strconv.Atoi(res.Date[12:len(res.Date)]), 000000000, time.UTC)
+	
+	formattedDate := time.Date(yearVal, time.Month(monthVal), dayVal, hourVal, minutesVal, secondsVal, 0, time.UTC)
+	
+	
+	gridPriceInfo,err := GetGridPrice("0" + "_" + "Grid" + "_" + yearVal+monthVal+dayVal, stub)
+	if err != nil {
+		fmt.Println("Error retrieving the grid price details")
+		return nil, errors.New("Error retrieving the grid price details")
+	}
+	
+	energySignedInt, errEP := strconv.Atoi(res.EnergySigned);
+	if errEP != nil {
+		fmt.Println("Error converting Energy Signed")
+		return nil, errors.New("Error converting Energy Signed")
+	}
+	
+	proposalEnergyRemInt, errER := strconv.Atoi(proposal.EnergyRemaining);
+	if errER != nil {
+		fmt.Println("Error converting Energy Remaining")
+		return nil, errors.New("Error converting Energy Remaining")
+	}
+	
+	proposalEnergySignedInt, errPES := strconv.Atoi(proposal.EnergySigned);
+	if errPES != nil {
+		fmt.Println("Error converting Energy Signed")
+		return nil, errors.New("Error converting Energy Signed")
+	}
+	
+	if(producerInfo.UserID != "" && consumerInfo.UserID != ""){		
+		if(proposal.proposalID != ""){		
+			if(formattedDate.After(now) && energySignedInt > 0)	{	
+				if(gridUserInfo.UserID != "" && gridPriceInfo.UserID != ""){					
+					gridUserPrice := gridPriceInfo.Price
+					platformChargeInfo,err := GetPlatformCharge("0", stub)
+					if err != nil {
+						fmt.Println("Error retrieving the platform charge details")
+						return nil, errors.New("Error retrieving the platform charge details")
+					}
+					
+					platformCharge := platformChargeInfo.Charge					
+					
+					if(energySignedInt > proposalEnergyRemInt){
+						fmt.Println("Error - Energy not available")
+						return nil, errors.New("Error - Energy not available")					
+					}
+					
+					res.Status = "SIGNED"
+					//res.EnergySigned = "0"
+					res.EnergyConsumed = "0"
+					
+					//Price = <proposal>-Price. Get Proposal price
+					res.Price = proposal.Price
+					res.BatteryBuyPrice = "0"
+					res.BatterySellPrice = "0"
+					//GridPrice = <gridUser>-price
+					res.GridPrice = gridUserPrice
+					res.PlatformComission = "0"
+					//producer = <proposal>-producer
+					res.Producer = producerInfo.UserID
+					res.Consumer = consumerInfo.UserID
+					res.Battery = "null"
+					//Grid = <gridUser>-usrid
+					res.Grid = gridUserInfo.UserID
+					//platform = <platform>-platformid
+					res.Platform = platformChargeInfo.PlatformID
+					
+					body, err := json.Marshal(res)
+					if err != nil {
+						panic(err)
+					}
+					fmt.Println(string(body))	
+					err = stub.PutState(res.ContractID, []byte(string(body)))
+					if err != nil {
+						fmt.Println("Failed to create contract ")
+					}
+					fmt.Println("Signed Contract  with Key : "+ res.ContractID)
+				}
+			}
+			
+			energyRem := proposalEnergyRemInt - energySignedInt
+			
+			if(energyRem == 0){
+				proposal.Status = "CLOSED"			
+			}else{
+				proposal.Status = "OPEN"
+			}
+			
+			energySign := proposalEnergySignedInt + energySignedInt
+			proposal.EnergySigned = strconv.Itoa(energySign)
+			proposal.EnergyRemaining = strconv.Itoa(energyRem)
+			
+			var consumerRecord User
+			consumerRecord.UserID = res.UserID
+			var contractRecord Contract
+			contractRecord.ContractID = res.ContractID
+			
+			proposalUpdate, err := json.Marshal(proposal)
+			if err != nil {
+				panic(err)
+			}
+			fmt.Println(string(proposalUpdate))	
+			err = stub.PutState(res.ContractID, []byte(string(proposalUpdate)))
+			if err != nil {
+				fmt.Println("Failed to update proposal ")
+			}
+			fmt.Println("Updated Proposal  with Key : "+ proposal.ProposalID)
+			
+		}		
+	}
 	fmt.Println("In initialize.SignContract end ")
 	return nil,nil	
 	
 }
+
+
 
 func MeterReading(meterReadingJSON string, stub shim.ChaincodeStubInterface) ([]byte, error) {
 	fmt.Println("In services.MeterReading start ")
@@ -515,15 +806,110 @@ func MeterReading(meterReadingJSON string, stub shim.ChaincodeStubInterface) ([]
 	}	
 	fmt.Println("EnergyReadingId  : ",res.EnergyReadingId)
 	
+	var readingDate = res.Date	
 	
-	err = stub.PutState(res.EnergyReadingId, []byte(meterReadingJSON))
-	if err != nil {
-		fmt.Println("Failed to create Meter Reading ")
+	yearVal, err  := strconv.Atoi(res.Date[:len(res.Date)-10])
+	if (err != nil ){
+		fmt.Println("Please pass integer ")
+	}	
+	
+	monthVal, err  := strconv.Atoi(res.Date[4:len(res.Date)-8])
+	if (err != nil ){
+		fmt.Println("Please pass integer ")
 	}
-	fmt.Println("Created Meter Reading  with Key : "+ res.EnergyReadingId)
-	fmt.Println("In initialize.MeterReading end ")
-	return nil,nil	
+	dayVal, err  := strconv.Atoi(res.Date[6:len(res.Date)-6])
+	if (err != nil ){
+		fmt.Println("Please pass integer ")
+	}
+	hourVal, err  := strconv.Atoi(res.Date[8:len(res.Date)-4])
+	if (err != nil ){
+		fmt.Println("Please pass integer ")
+	}
+	minutesVal, err  := strconv.Atoi(res.Date[10:len(res.Date)-2])
+	if (err != nil ){
+		fmt.Println("Please pass integer ")
+	}
+	secondsVal, err  := strconv.Atoi(res.Date[12:len(res.Date)])
+	if (err != nil ){
+		fmt.Println("Please pass integer ")
+	}
 	
+	now := time.Now()
+	formattedDate := time.Date(yearVal, time.Month(monthVal), dayVal, hourVal, minutesVal, secondsVal, 0, time.UTC)	
+	//datString := res.Date[:len(res.Date)-10] + "-" + res.Date[4:len(res.Date)-8] + "-" + res.Date[6:len(res.Date)-6]
+	
+	nowString := now.String()
+	dateString := formattedDate.String()
+	
+	energyAmtInt, errEM := strconv.Atoi(res.EnergyAmount);
+	if errEM != nil {
+		fmt.Println("Error converting Energy Amount")
+		return nil, errors.New("Error converting Energy Amount")
+	}
+	
+	if(nowString[:10] == dateString[:10]){
+		if(energyAmtInt != 0){
+			userIDValBytes, err := stub.GetState(res.SmartMeterID)
+			if err != nil {
+				fmt.Println("Error retrieving user ID")
+				return users, errors.New("Error retrieving User Details")
+			}
+			userIDVal := string(userIDValBytes)
+			
+			var users User			
+			users,err := GetUsers(userIDVal + "_" + "Prosumer", stub)
+			if err != nil {
+				fmt.Println("Error receiving  the Users")
+				return nil, errors.New("Error receiving  Users")
+			}	
+						
+			body, err := json.Marshal(res)
+			if err != nil {
+				panic(err)
+			}
+			fmt.Println(string(body))	
+			err = stub.PutState(res.EnergyReadingId, []byte(string(body)))
+			if err != nil {
+				fmt.Println("Failed to create Meter Reading ")
+			}
+			fmt.Println("Created Meter Reading  with Key : "+ res.EnergyReadingId)					
+			
+			energyConsInt, errEC := strconv.Atoi(users.EnergyConsumed);
+			if errEC != nil {
+				fmt.Println("Error converting Energy Consumed")
+				return nil, errors.New("Error converting Energy Consumed")
+			}
+			
+			energyProdInt, errEP := strconv.Atoi(users.EnergyProduced);
+			if errEP != nil {
+				fmt.Println("Error converting Energy Produced")
+				return nil, errors.New("Error converting Energy Produced")
+			}
+			
+			if(energyAmtInt > 0){
+				energyConsumedVal := energyConsInt + energyAmtInt
+				energyProdVal := energyProdInt
+			} else{
+				energyConsumedVal := energyConsInt 
+				energyProdVal := energyProdInt + energyAmtInt*(-1)
+			}			
+			
+			bodyUser, err := json.Marshal(users)
+			if err != nil {
+				panic(err)
+			}
+			fmt.Println(string(bodyUser))	
+			err = stub.PutState(users.UserID, []byte(string(bodyUser)))
+			if err != nil {
+				fmt.Println("Failed to update User Details ")
+			}
+			fmt.Println("Updated user details  with Key : "+ users.UserID)			
+			
+		}			
+	}		
+	
+	fmt.Println("In initialize.MeterReading end ")
+	return nil,nil		
 	
 }
 
