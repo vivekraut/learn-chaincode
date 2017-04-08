@@ -813,8 +813,6 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 	return nil,nil		
 }
 
-
-
 func MeterReading(meterReadingJSON string, stub shim.ChaincodeStubInterface) ([]byte, error) {
 	fmt.Println("In services.MeterReading start ")
 		
@@ -830,8 +828,7 @@ func MeterReading(meterReadingJSON string, stub shim.ChaincodeStubInterface) ([]
 	yearVal, err  := strconv.Atoi(res.Date[:len(res.Date)-10])
 	if (err != nil ){
 		fmt.Println("Please pass integer ")
-	}	
-	
+	}		
 	monthVal, err  := strconv.Atoi(res.Date[4:len(res.Date)-8])
 	if (err != nil ){
 		fmt.Println("Please pass integer ")
