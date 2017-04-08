@@ -625,6 +625,7 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 	}	
 	fmt.Println("ContractID  : ",res.ContractID)
 	
+	fmt.Println("Default Grid User is 0_Grid")
 	/*
 	var producer User
 	var consumer User
