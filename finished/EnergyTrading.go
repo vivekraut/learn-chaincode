@@ -403,9 +403,24 @@ func GetMeterReading(energyReadingID string, stub shim.ChaincodeStubInterface)(M
 		return meterReading, errors.New("Error retrieving meter reading" + energyReadingID)
 	}
 	err = json.Unmarshal(meterReadingBytes, &meterReading)
-	fmt.Println("Contract   : " , meterReading);
+	fmt.Println("Meter Reading   : " , meterReading);
 	fmt.Println("In query.GetMeterReading end ")
 	return meterReading, nil
+}
+
+func GetBalance(userID string, stub shim.ChaincodeStubInterface)(Balance, error) {
+	fmt.Println("In query.GetBalance start ")
+	key := userID + "_" + "Balance"
+	var balanceUser Balance
+	balanceUserBytes, err := stub.GetState(key)
+	if err != nil {
+		fmt.Println("Error retrieving user balance" , userID)
+		return balanceUser, errors.New("Error retrieving user balance" + userID)
+	}
+	err = json.Unmarshal(balanceUserBytes, &balanceUser)
+	fmt.Println("User Balance   : " , balanceUser);
+	fmt.Println("In query.GetBalance end ")
+	return balanceUser, nil
 }
 
 
@@ -867,7 +882,7 @@ func MeterReading(meterReadingJSON string, stub shim.ChaincodeStubInterface) ([]
 	
 	fmt.Println(energyAmtInt)
 	
-	//if(nowString[:10] == dateString[:10]){
+	if(nowString[:10] == dateString[:10]){
 		if(energyAmtInt != 0){
 			fmt.Println("condition successful ")
 			//var userIDByte res.UserID
@@ -934,7 +949,7 @@ func MeterReading(meterReadingJSON string, stub shim.ChaincodeStubInterface) ([]
 			fmt.Println("Updated user details  with Key : "+ users.UserID)			
 			
 		}			
-	//}		
+	}		
 	
 	fmt.Println("In initialize.MeterReading end ")
 	return nil,nil		
