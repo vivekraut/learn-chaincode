@@ -579,12 +579,12 @@ func ListProposal(proposalJSON string, stub shim.ChaincodeStubInterface) ([]byte
 		var priceFloat float64
 		priceFloat = float64(priceInt)*1.1
 		//var priceInt int64
-		priceInt, errGP := strconv.Atoi(gridPrice.Price)
+		gridPriceInt, errGP := strconv.Atoi(gridPrice.Price)
 		if errGP != nil {
-			fmt.Println("Error converting price")
-			return nil, errors.New("Error converting price")
+			fmt.Println("Error converting grid price")
+			return nil, errors.New("Error converting grid price")
 		}
-		if(priceFloat > float64(priceInt)){
+		if(priceFloat > float64(gridPriceInt)){
 			fmt.Println("Error - Price too high")
 			return nil, errors.New("Error - Price too high")		
 		}
