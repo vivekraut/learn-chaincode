@@ -757,8 +757,8 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 					res.GridPrice = gridUserPrice
 					res.PlatformComission = platformCharge
 					//producer = <proposal>-producer
-					//res.Producer = producerInfo.UserID
-					//res.Consumer = consumerInfo.UserID
+					res.Producer.UserID = proposal.UserID
+					res.Consumer.UserID = res.UserID
 					res.Battery = "null"
 					//Grid = <gridUser>-usrid
 					res.Grid = gridUserInfo.UserID
