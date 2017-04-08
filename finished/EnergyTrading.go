@@ -719,9 +719,9 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 		return nil, errors.New("Error converting Energy Signed")
 	}
 	fmt.Println("Proposal Energy Signed - "+(strconv.Itoa(proposalEnergySignedInt)))
-	fmt.Println("Grid User ID....."
+	fmt.Println("Grid User ID.....")
 	fmt.Println(gridUserInfo.UserID)
-	fmt.Println("Grid Price User ID....."
+	fmt.Println("Grid Price User ID.....")
 	fmt.Println(gridPriceInfo.UserID)
 	
 	//if(producerInfo.UserID != "" && consumerInfo.UserID != ""){		
