@@ -818,8 +818,7 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 func MeterReading(meterReadingJSON string, stub shim.ChaincodeStubInterface) ([]byte, error) {
 	fmt.Println("In services.MeterReading start ")
 		
-	res := &Meter{}
-	
+	res := &Meter{}	
 	err := json.Unmarshal([]byte(meterReadingJSON), res)
 	if err != nil {
 		fmt.Println("Failed to unmarshal Meter ")
@@ -860,15 +859,20 @@ func MeterReading(meterReadingJSON string, stub shim.ChaincodeStubInterface) ([]
 	
 	nowString := now.String()
 	dateString := formattedDate.String()
-	
+	fmt.Println("Dates....")
+	fmt.Println(nowString)
+	fmt.Println(dateString)
 	energyAmtInt, errEM := strconv.Atoi(res.EnergyAmount);
 	if errEM != nil {
 		fmt.Println("Error converting Energy Amount")
 		return nil, errors.New("Error converting Energy Amount")
 	}
 	
+	fmt.Println(energyAmtInt)
+	
 	if(nowString[:10] == dateString[:10]){
 		if(energyAmtInt != 0){
+			fmt.Println("condition successful ")
 			//var userIDByte res.UserID
 			userIDValBytes, err := stub.GetState(res.SmartMeterID)
 			if err != nil {
