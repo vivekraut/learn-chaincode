@@ -380,6 +380,7 @@ func GetProposals(proposalID string, stub shim.ChaincodeStubInterface)(Proposal,
 func GetContract(contractID string, stub shim.ChaincodeStubInterface)(Contract, error) {
 	fmt.Println("In query.GetContract start ")
 	key := contractID
+	fmt.Println("Getting the contract for ID..." , key)
 	var contracts Contract
 	contractBytes, err := stub.GetState(key)
 	if err != nil {
@@ -770,6 +771,7 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 					}
 					fmt.Println(string(body))	
 					err = stub.PutState(res.ContractID, []byte(string(body)))
+					fmt.Println(res.ContractID)
 					if err != nil {
 						fmt.Println("Failed to create contract ")
 					}
@@ -799,7 +801,7 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 				panic(err)
 			}
 			fmt.Println(string(proposalUpdate))	
-			err = stub.PutState(res.ContractID, []byte(string(proposalUpdate)))
+			err = stub.PutState(proposal.ProposalID, []byte(string(proposalUpdate)))
 			if err != nil {
 				fmt.Println("Failed to update proposal ")
 			}
