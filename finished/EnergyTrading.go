@@ -867,7 +867,7 @@ func MeterReading(meterReadingJSON string, stub shim.ChaincodeStubInterface) ([]
 	
 	fmt.Println(energyAmtInt)
 	
-	if(nowString[:10] == dateString[:10]){
+	//if(nowString[:10] == dateString[:10]){
 		if(energyAmtInt != 0){
 			fmt.Println("condition successful ")
 			//var userIDByte res.UserID
@@ -934,7 +934,7 @@ func MeterReading(meterReadingJSON string, stub shim.ChaincodeStubInterface) ([]
 			fmt.Println("Updated user details  with Key : "+ users.UserID)			
 			
 		}			
-	}		
+	//}		
 	
 	fmt.Println("In initialize.MeterReading end ")
 	return nil,nil		
