@@ -693,7 +693,7 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 	formattedDate := time.Date(yearVal, time.Month(monthVal), dayVal, hourVal, minutesVal, secondsVal, 0, time.UTC)
 	
 	fmt.Println("Grid Price Date --> "+(strconv.Itoa(yearVal)+strconv.Itoa(monthVal)+strconv.Itoa(dayVal)))
-	gridPriceInfo,err := GetGridPrice("0" + "_" + dateValue), stub)
+	gridPriceInfo,err := GetGridPrice("0" + "_" + dateValue, stub)
 	if err != nil {
 		fmt.Println("Error retrieving the grid price details")
 		return nil, errors.New("Error retrieving the grid price details")
