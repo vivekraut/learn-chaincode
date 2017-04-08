@@ -654,8 +654,6 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 		return nil, errors.New("Error retrieving the grid user details")
 	}
 	
-	
-	
 	proposal,err := GetProposals(res.ProposalID, stub)
 	now := time.Now()
 	//Getting the date only 	
@@ -802,8 +800,7 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 		}		
 	//}
 	fmt.Println("In initialize.SignContract end ")
-	return nil,nil	
-	
+	return nil,nil		
 }
 
 
