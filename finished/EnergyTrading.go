@@ -625,7 +625,6 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 	}	
 	fmt.Println("ContractID  : ",res.ContractID)
 	
-	fmt.Println("Default Grid User is 0_Grid")
 	/*
 	var producer User
 	var consumer User
@@ -654,11 +653,13 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 		fmt.Println("Error retrieving the grid user details")
 		return nil, errors.New("Error retrieving the grid user details")
 	}
+	fmt.Println("Grid User")
+	fmt.Println(gridUserInfo)
 	
 	proposal,err := GetProposals(res.ProposalID, stub)
 	now := time.Now()
 	//Getting the date only 	
-	//dateValue := res.Date[:len(res.Date)-6]
+	dateValue := res.Date[:len(res.Date)-6]
 	//20170406122460
 	
 	yearVal, err  := strconv.Atoi(res.Date[:len(res.Date)-10])
@@ -692,7 +693,7 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 	formattedDate := time.Date(yearVal, time.Month(monthVal), dayVal, hourVal, minutesVal, secondsVal, 0, time.UTC)
 	
 	fmt.Println("Grid Price Date --> "+(strconv.Itoa(yearVal)+strconv.Itoa(monthVal)+strconv.Itoa(dayVal)))
-	gridPriceInfo,err := GetGridPrice("0" + "_" + strconv.Itoa(yearVal)+strconv.Itoa(monthVal)+strconv.Itoa(dayVal), stub)
+	gridPriceInfo,err := GetGridPrice("0" + "_" + dateValue), stub)
 	if err != nil {
 		fmt.Println("Error retrieving the grid price details")
 		return nil, errors.New("Error retrieving the grid price details")
