@@ -625,6 +625,7 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 	}	
 	fmt.Println("ContractID  : ",res.ContractID)
 	
+	/*
 	var producer User
 	var consumer User
 	producer = res.Producer
@@ -646,7 +647,7 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 		fmt.Println("Error retrieving the producer details")
 		return nil, errors.New("Error retrieving the consumer details")
 	}
-	
+	*/
 	gridUserInfo,err := GetUsers("0" + "_" + "Grid", stub)
 	if err != nil {
 		fmt.Println("Error retrieving the grid user details")
