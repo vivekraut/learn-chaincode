@@ -693,6 +693,8 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 	formattedDate := time.Date(yearVal, time.Month(monthVal), dayVal, hourVal, minutesVal, secondsVal, 0, time.UTC)
 	
 	fmt.Println("Grid Price Date --> "+(strconv.Itoa(yearVal)+strconv.Itoa(monthVal)+strconv.Itoa(dayVal)))
+	fmt.Println("Getting grid price for date ....")
+	fmt.Println(dateValue)
 	gridPriceInfo,err := GetGridPrice("0" + "_" + dateValue, stub)
 	if err != nil {
 		fmt.Println("Error retrieving the grid price details")
@@ -717,6 +719,10 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 		return nil, errors.New("Error converting Energy Signed")
 	}
 	fmt.Println("Proposal Energy Signed - "+(strconv.Itoa(proposalEnergySignedInt)))
+	fmt.Println("Grid User ID....."
+	fmt.Println(gridUserInfo.UserID)
+	fmt.Println("Grid Price User ID....."
+	fmt.Println(gridPriceInfo.UserID)
 	
 	//if(producerInfo.UserID != "" && consumerInfo.UserID != ""){		
 		if(proposal.ProposalID != ""){		
