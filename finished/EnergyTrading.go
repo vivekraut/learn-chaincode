@@ -703,19 +703,19 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 		fmt.Println("Error converting Energy Signed")
 		return nil, errors.New("Error converting Energy Signed")
 	}
-	fmt.Println("Energy Signed - "+energySignedInt)
+	fmt.Println("Energy Signed - "+(strconv.Itoa(energySignedInt)))
 	proposalEnergyRemInt, errER := strconv.Atoi(proposal.EnergyRemaining);
 	if errER != nil {
 		fmt.Println("Error converting Energy Remaining")
 		return nil, errors.New("Error converting Energy Remaining")
 	}
-	fmt.Println("Energy Proposed - "+proposalEnergyRemInt)
+	fmt.Println("Energy Proposed - "+(strconv.Itoa(proposalEnergyRemInt)))
 	proposalEnergySignedInt, errPES := strconv.Atoi(proposal.EnergySigned);
 	if errPES != nil {
 		fmt.Println("Error converting Energy Signed")
 		return nil, errors.New("Error converting Energy Signed")
 	}
-	fmt.Println("Proposal Energy Signed - "+proposalEnergySignedInt)
+	fmt.Println("Proposal Energy Signed - "+(strconv.Itoa(proposalEnergySignedInt)))
 	
 	//if(producerInfo.UserID != "" && consumerInfo.UserID != ""){		
 		if(proposal.ProposalID != ""){		
