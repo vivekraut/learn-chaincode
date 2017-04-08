@@ -633,12 +633,14 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 	prodId := producer.UserID
 	consumerId := consumer.UserID
 	
+	fmt.Println("Getting producer details ")
 	producerInfo,err := GetUsers(prodId + "_" + "Prosumer", stub)
 	if err != nil {
 		fmt.Println("Error retrieving the producer details")
 		return nil, errors.New("Error retrieving the producer details")
 	}
 	
+	fmt.Println("Getting consumer details ")
 	consumerInfo,err := GetUsers(consumerId + "_" + "Prosumer", stub)
 	if err != nil {
 		fmt.Println("Error retrieving the producer details")
@@ -689,8 +691,8 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 	
 	formattedDate := time.Date(yearVal, time.Month(monthVal), dayVal, hourVal, minutesVal, secondsVal, 0, time.UTC)
 	
-	
-	gridPriceInfo,err := GetGridPrice("0" + "_" + "Grid" + "_" + strconv.Itoa(yearVal)+strconv.Itoa(monthVal)+strconv.Itoa(dayVal), stub)
+	fmt.Println("Grid Price Date --> "+(strconv.Itoa(yearVal)+strconv.Itoa(monthVal)+strconv.Itoa(dayVal)))
+	gridPriceInfo,err := GetGridPrice("0" + "_" + strconv.Itoa(yearVal)+strconv.Itoa(monthVal)+strconv.Itoa(dayVal), stub)
 	if err != nil {
 		fmt.Println("Error retrieving the grid price details")
 		return nil, errors.New("Error retrieving the grid price details")
@@ -701,23 +703,25 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 		fmt.Println("Error converting Energy Signed")
 		return nil, errors.New("Error converting Energy Signed")
 	}
-	
+	fmt.Println("Energy Signed - "+energySignedInt)
 	proposalEnergyRemInt, errER := strconv.Atoi(proposal.EnergyRemaining);
 	if errER != nil {
 		fmt.Println("Error converting Energy Remaining")
 		return nil, errors.New("Error converting Energy Remaining")
 	}
-	
+	fmt.Println("Energy Proposed - "+proposalEnergyRemInt)
 	proposalEnergySignedInt, errPES := strconv.Atoi(proposal.EnergySigned);
 	if errPES != nil {
 		fmt.Println("Error converting Energy Signed")
 		return nil, errors.New("Error converting Energy Signed")
 	}
+	fmt.Println("Proposal Energy Signed - "+proposalEnergySignedInt)
 	
-	if(producerInfo.UserID != "" && consumerInfo.UserID != ""){		
+	//if(producerInfo.UserID != "" && consumerInfo.UserID != ""){		
 		if(proposal.ProposalID != ""){		
 			if(formattedDate.After(now) && energySignedInt > 0)	{	
-				if(gridUserInfo.UserID != "" && gridPriceInfo.UserID != ""){					
+				if(gridUserInfo.UserID != "" && gridPriceInfo.UserID != ""){	
+					fmt.Println("User Found. Signing the contract")
 					gridUserPrice := gridPriceInfo.Price
 					platformChargeInfo,err := GetPlatformCharge("0", stub)
 					if err != nil {
@@ -726,7 +730,7 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 					}
 					
 					platformCharge := platformChargeInfo.Charge					
-					
+					fmt.Println("Platform Charge -->"+platformCharge)
 					if(energySignedInt > proposalEnergyRemInt){
 						fmt.Println("Error - Energy not available")
 						return nil, errors.New("Error - Energy not available")					
@@ -741,6 +745,7 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 					res.BatteryBuyPrice = "0"
 					res.BatterySellPrice = "0"
 					//GridPrice = <gridUser>-price
+					fmt.Println("Grid Price -->"+gridUserPrice)
 					res.GridPrice = gridUserPrice
 					res.PlatformComission = platformCharge
 					//producer = <proposal>-producer
@@ -794,7 +799,7 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 			fmt.Println("Updated Proposal  with Key : "+ proposal.ProposalID)
 			
 		}		
-	}
+	//}
 	fmt.Println("In initialize.SignContract end ")
 	return nil,nil	
 	
