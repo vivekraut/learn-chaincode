@@ -69,10 +69,16 @@ type Contract struct{
 	PlatformComission string `json:"PlatformComission"`
 	Producer User `json:"Producer"`	
 	Consumer User `json:"Consumer"`	
-	Battery string `json:"Battery"`	
-	Grid string `json:"Grid"`
-	Platform string `json:"Platform"`
-	
+	Battery User `json:"Battery"`	
+	Grid User `json:"Grid"`
+	Platform User `json:"Platform"`
+	GridVolume string `json:"GridVolume"`
+    BatteryVolume string `json:"BatteryVolume"`
+    ProducerVolume string `json:"BatteryVolume"`
+    ChangeInGridBalance  string `json:"ChangeInGridBalance"`
+    ChangeInProducerBalance string `json:"ChangeInProducerBalance"`
+    ChangeInBatteryBalance string `json:"ChangeInBatteryBalance"`
+    ChangeInConsumerBalance string `json:"ChangeInConsumerBalance"` 	
 }
 
 type Meter struct{
@@ -814,7 +820,7 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 					dateStringUpd := dateString[:10]
 					
 					fmt.Println(dateStringUpd)	
-					var contractIDsString String
+					var contractIDsString string
 					
 					// Getting the values from ledger
 					contractIDsBytes, err := stub.GetState(dateStringUpd)					
@@ -1033,8 +1039,8 @@ func PerformSettlement(dateVal string, stub shim.ChaincodeStubInterface) ([]byte
 	}
 	
 	
-	var contractIDs [] String
-	contractIDs := strings.Split(string(contractIDsBytes), ",")
+	var contractIDs [] string
+	contractIDs = strings.Split(string(contractIDsBytes), ",")
 	
 	var contracts [] Contract;
 	
