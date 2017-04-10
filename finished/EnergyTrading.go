@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+	"strings"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	//"github.com/energy/contracts/data"
 	//"github.com/energy/contracts/query"
@@ -210,6 +211,8 @@ func (self *EnergyTradingChainCode) Invoke(stub shim.ChaincodeStubInterface,
 	}
 	
 	
+	
+	
 	fmt.Println("invoke did not find func: " + function)
 	return nil, errors.New("Received unknown function invocation: " + function)
 }
@@ -305,6 +308,18 @@ func QueryDetails(stub shim.ChaincodeStubInterface, function string, args []stri
 		}
 		fmt.Println("All success, returning meter reading")
 		return json.Marshal(meterReading)
+	}
+	
+	if function == "GetBalance" {
+		fmt.Println("Invoking GetBalance " + function)
+		var balanceUser Balance
+		balanceUser,err := GetBalance(args[0], stub)
+		if err != nil {
+			fmt.Println("Error retrieving the user balance")
+			return nil, errors.New("Error retrieving the user balance")
+		}
+		fmt.Println("All success, returning user balance")
+		return json.Marshal(balanceUser)
 	}
 	
 	return nil, errors.New("Received unknown query function name")
@@ -791,6 +806,33 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 						fmt.Println("Failed to create contract ")
 					}
 					fmt.Println("Signed Contract  with Key : "+ res.ContractID)
+					
+					// Setting the contract for the date
+					fmt.Println("Contract Date -- ")
+					fmt.Println(formattedDate)
+					dateString := formattedDate.String()
+					dateStringUpd := dateString[:10]
+					
+					fmt.Println(dateStringUpd)	
+					var contractIDsString String
+					
+					// Getting the values from ledger
+					contractIDsBytes, err := stub.GetState(dateStringUpd)					
+					if err != nil {
+						fmt.Println("Error retrieving contract IDs")
+						return nil, errors.New("Error retrieving contract IDs")
+						contractIDsString = ""
+					}else{
+						contractIDsVal := string(contractIDsBytes)
+						contractIDsString = contractIDsVal + ","	
+					}		
+					
+					fmt.Println(res.ContractID)	
+					err = stub.PutState(dateStringUpd, []byte(contractIDsString + res.ContractID))					
+					if err != nil {
+						fmt.Println("Failed to create contract list ")
+					}
+					fmt.Println("Added contract to the list")
 				}
 			}
 			
@@ -975,6 +1017,290 @@ func BalanceUpdate(balanceUpdateJSON string, stub shim.ChaincodeStubInterface) (
 	}
 	fmt.Println("Updated Balance with Key : "+ res.UserID + "_" + "Balance")
 	fmt.Println("In initialize.BalanceUpdate end ")
+	return nil,nil		
+	
+}
+
+
+func PerformSettlement(dateVal string, stub shim.ChaincodeStubInterface) ([]byte, error) {
+	fmt.Println("In services.PerformSettlement start ")
+	
+	
+	contractIDsBytes, err := stub.GetState(dateVal)					
+	if err != nil {
+		fmt.Println("Error retrieving contract IDs")
+		return nil, errors.New("Error retrieving contract IDs")		
+	}
+	
+	
+	var contractIDs [] String
+	contractIDs := strings.Split(string(contractIDsBytes), ",")
+	
+	var contracts [] Contract;
+	
+	for i := 0; i < len(contractIDs); i++{
+		contractIDVal := contractIDs[i];
+		var contractDetails Contract
+		contractDetails,err = GetContract(contractIDVal, stub)
+		if err != nil {
+			fmt.Println("Error receiving  the contract details")
+			return nil, errors.New("Error receiving  contract details")
+		}
+		contracts = append(contracts, contractDetails)
+		
+	}
+
+	
+	//Get Contract 1 - con1
+	//Get Contract 2 - con2
+	//var con1 Contract
+	//var con2 Contract
+	//contracts = append(contracts, con1)
+	//contracts = append(contracts, con2)
+	
+	var updatedContracts[] Contract;
+
+	var ContractIdMap  map[string]Contract;
+	ContractIdMap = make(map[string]Contract);
+
+	var ContractPerConsumer  map[string]string;
+	ContractPerConsumer = make(map[string]string);
+
+	var ContractPerProducer  map[string]([]string);
+	ContractPerProducer = make(map[string]([]string));
+
+	var ProducerContractVolume  map[string]float64;
+	ProducerContractVolume  = make(map[string]float64);
+
+	var ConsumerContractVolume map[string]float64;
+	ConsumerContractVolume = make(map[string]float64);
+
+
+	var ConsumerTotalConsumption map[string]float64;
+	ConsumerTotalConsumption = make(map[string]float64);
+
+
+	var ProducerTotalProduction map[string]float64;
+	ProducerTotalProduction = make(map[string]float64);
+
+	var BatterySupply float64
+	BatterySupply = 0.0;
+	var GridSupply float64
+	GridSupply = 0.0 
+	var totalOverConsumed float64
+	totalOverConsumed = 0.0
+	var totalUnderConsumed float64
+	totalUnderConsumed = 0.0
+	var BatteryBuyPrice float64
+	BatteryBuyPrice = 0.0
+
+	var BatterySellPrice float64
+	BatterySellPrice = 0.0
+
+	//var totalProduced = 0.0;
+	//var totalConsumed = 0.0; 
+
+	//var userActualVolume map[string]float64;
+	//userActualVolume = make(map[string]float64);
+
+	//var ConsumerActualVolume = new Map();
+
+					if len(contracts)  > 0 {
+									Battery := contracts[0].Battery
+									val2 , _ := strconv.ParseFloat(Battery.EnergyProduced, 64)          
+									val3 , _ := strconv.ParseFloat(Battery.EnergyConsumed, 64)
+									val5 , _ := strconv.ParseFloat(contracts[0].Price, 64);       
+									BatterySupply = val2 - val3
+									fmt.Print("BatterySupply:");                       
+									fmt.Println(BatterySupply);
+									//fmt.Println(err);
+
+									Grid := contracts[0].Grid
+									val4 , _ := strconv.ParseFloat(Grid.EnergyProduced, 64) 
+									GridSupply = val4
+									fmt.Print("GridSupply:");
+									fmt.Println(GridSupply);
+									//fmt.Println(err)
+									BatteryBuyPrice = val5
+									BatterySellPrice = val5                                   
+					}              
+
+					for i := 0; i < len(contracts); i++{
+									var l_contract = contracts[i];
+									producer := l_contract.Producer;
+									consumer := l_contract.Consumer;
+									val1 , _ := strconv.ParseFloat(l_contract.EnergySigned, 64);
+									val2 , _ := strconv.ParseFloat(producer.EnergyProduced, 64);     
+									val3 , _ := strconv.ParseFloat(producer.EnergyConsumed, 64);
+									val4 , _ := strconv.ParseFloat(consumer.EnergyProduced, 64);   
+									val5 , _ := strconv.ParseFloat(consumer.EnergyConsumed, 64); 
+									val6 , _ := strconv.ParseFloat(l_contract.Price, 64);                           
+									if val, ok := ProducerContractVolume[producer.UserID]; !ok {
+													ProducerContractVolume[producer.UserID] = val1;                         
+									} else{
+													ProducerContractVolume[producer.UserID] = val1 + val;
+									}
+					
+									if val, ok := ConsumerContractVolume[consumer.UserID]; !ok {
+													ConsumerContractVolume[consumer.UserID] = val1;                     
+									} else{
+													ConsumerContractVolume[consumer.UserID] = val1 + val;
+									}
+					
+									if _, ok := ConsumerTotalConsumption[consumer.UserID]; !ok {
+													ConsumerTotalConsumption[consumer.UserID] = val5  - val4;                    
+									}
+					
+									if _, ok := ProducerTotalProduction[producer.UserID]; !ok {
+													ProducerTotalProduction[producer.UserID] = val2  - val3;                             
+									}              
+					
+									if BatteryBuyPrice > val6 {
+													BatteryBuyPrice = val6
+									}
+									
+									if BatterySellPrice < val6 {
+													BatterySellPrice = val6
+									}
+									l_contract.EnergyConsumed = strconv.FormatFloat(val5 ,'f', 2, 32) 
+									
+									ContractIdMap[l_contract.ContractID] = l_contract;
+									ContractPerProducer[producer.UserID] = append(ContractPerProducer[producer.UserID],l_contract.ContractID) 
+									ContractPerConsumer[consumer.UserID] = l_contract.ContractID
+																					
+									//fmt.Println(err);                                           
+					}
+					
+					
+					BatterySellPrice = BatterySellPrice * 1.1;
+					BatteryBuyPrice = BatteryBuyPrice * 0.9 ;
+					
+					//--Dividing Volume of Production
+					for userid := range ProducerTotalProduction{
+									if ProducerTotalProduction[userid] > 0 {
+													for _,conid := range ContractPerProducer[userid] {
+																	m_contract := ContractIdMap[conid]
+																	val1 , _ := strconv.ParseFloat(m_contract.EnergySigned, 64);
+																	m_contract.ProducerVolume =  strconv.FormatFloat( (val1 / ProducerContractVolume[userid] * ProducerTotalProduction[userid]),'f', 2, 32)
+																	ContractIdMap[conid] = m_contract
+													}
+									} 
+					}              
+					
+					for userid := range ConsumerTotalConsumption {
+									if ConsumerTotalConsumption[userid] > ConsumerContractVolume[userid] {
+													totalOverConsumed = totalOverConsumed + ConsumerTotalConsumption[userid] - ConsumerContractVolume[userid]
+									} else if ConsumerTotalConsumption[userid] < ConsumerContractVolume[userid] {
+													totalUnderConsumed = totalOverConsumed - ConsumerTotalConsumption[userid] + ConsumerContractVolume[userid]
+									} else {
+													totalOverConsumed = totalOverConsumed + ConsumerTotalConsumption[userid] - ConsumerContractVolume[userid]
+									}
+					}
+					
+					if totalOverConsumed > 0 {
+									for userid := range ConsumerTotalConsumption {
+													if ConsumerTotalConsumption[userid] > ConsumerContractVolume[userid] {
+																	m_contract := ContractIdMap[ContractPerConsumer[userid]]
+																	m_contract.GridVolume = strconv.FormatFloat(( ConsumerTotalConsumption[userid] - ConsumerContractVolume[userid] ) / totalOverConsumed ,'f', 2, 32)
+													} else if ConsumerTotalConsumption[userid] < ConsumerContractVolume[userid] {
+																	totalUnderConsumed = totalOverConsumed - ConsumerTotalConsumption[userid] + ConsumerContractVolume[userid]
+													} else {
+																	totalOverConsumed = totalOverConsumed + ConsumerTotalConsumption[userid] - ConsumerContractVolume[userid]
+													}
+									}
+									
+					}
+					for conid := range ContractIdMap{
+									t_con := ContractIdMap[conid]
+									t_con.Status = "PROCESSED"
+									t_con.BatteryBuyPrice = strconv.FormatFloat(BatteryBuyPrice, 'f', 2, 32)
+									t_con.BatterySellPrice = strconv.FormatFloat(BatterySellPrice, 'f', 2, 32) 
+									val1 , _ := strconv.ParseFloat(t_con.GridVolume, 64);
+									//val2 , _ := strconv.ParseFloat(t_con.BatteryVolume, 64);                           
+									val3 , _ := strconv.ParseFloat(t_con.EnergyConsumed, 64);
+									val4 , _ := strconv.ParseFloat(t_con.EnergySigned, 64);
+									val5 , _ := strconv.ParseFloat(t_con.BatteryBuyPrice, 64);
+									val6 , _ := strconv.ParseFloat(t_con.BatterySellPrice, 64);
+									val7 , _ := strconv.ParseFloat(t_con.GridPrice, 64);
+									val8 , _ := strconv.ParseFloat(t_con.Price, 64);
+									//val9 , _ := strconv.ParseFloat(t_con.ProducerVolume, 64);                                                                                                                                                                       
+									val2 := val3 - val4 - val1
+									var ChangeInBatteryBalance float64
+									if val2  < 0 {
+													ChangeInBatteryBalance = val2 * val5
+									} else if val2 > 0 {
+													ChangeInBatteryBalance = val2 * val6
+									}
+																	
+									ChangeInGridBalance := val1 * val7
+									ChangeInProducerBalance := val4 * val8
+									ChangeInConsumerBalance := - ( ChangeInProducerBalance + ChangeInGridBalance + ChangeInBatteryBalance)
+									t_con.ChangeInBatteryBalance = strconv.FormatFloat(ChangeInBatteryBalance,'f', 2, 32)
+									t_con.ChangeInProducerBalance = strconv.FormatFloat(ChangeInProducerBalance ,'f', 2, 32)
+									t_con.ChangeInGridBalance = strconv.FormatFloat(ChangeInGridBalance ,'f', 2, 32)
+									t_con.ChangeInConsumerBalance = strconv.FormatFloat(ChangeInConsumerBalance ,'f', 2, 32)
+									t_con.BatteryVolume = strconv.FormatFloat(val2 ,'f', 2, 32)                                         
+									updatedContracts = append(updatedContracts , t_con)
+					
+					}
+
+					fmt.Print("GridSupply:");             
+					fmt.Println(GridSupply);               
+					fmt.Print("totalUnderConsumed:")         
+					fmt.Println(totalUnderConsumed)
+					fmt.Print("totalOverConsumed:")
+					fmt.Println(totalOverConsumed)
+					fmt.Print("BatteryBuyPrice:")
+					fmt.Println(BatteryBuyPrice)
+					fmt.Print("BatterySellPrice:")
+					fmt.Println(BatterySellPrice)
+					fmt.Print("Contract:")
+					//fmt.Println(ContractIdMap)
+					
+					for i := 0; i < len(updatedContracts); i++{
+									var con = updatedContracts[i];
+					fmt.Println("")
+					fmt.Println("")
+			  fmt.Print("ProposalID:")
+									  fmt.Println(con.ProposalID) 
+			  fmt.Print("ContractID:")
+									  fmt.Println(con.ContractID)              
+			  fmt.Print("EnergySigned:")
+									  fmt.Println(con.EnergySigned)
+				  fmt.Print("EnergyConsumed:")
+													  fmt.Println(con.EnergyConsumed)
+				  fmt.Print("Status:")
+													  fmt.Println(con.Status)
+				  fmt.Print("Price:")
+													  fmt.Println(con.Price)
+				  fmt.Print("BatteryBuyPrice:")
+													  fmt.Println(con.BatteryBuyPrice)
+				  fmt.Print("BatterySellPrice:")
+													  fmt.Println(con.BatterySellPrice)
+				  fmt.Print("GridPrice:")
+													  fmt.Println(con.GridPrice)
+				  fmt.Print("PlatformComission:")
+													  fmt.Println(con.PlatformComission)              
+				  fmt.Print("GridVolume:")
+													  fmt.Println(con.GridVolume)
+													  fmt.Print("BatteryVolume:")
+										  fmt.Println(con.BatteryVolume)
+						  fmt.Print("ProducerVolume:")
+									  fmt.Println(con.ProducerVolume)
+						  fmt.Print("ChangeInGridBalance:")
+									  fmt.Println(con.ChangeInGridBalance)
+						  fmt.Print("ChangeInProducerBalance:")
+									  fmt.Println(con.ChangeInProducerBalance)
+						  fmt.Print("ChangeInBatteryBalance:")
+									  fmt.Println(con.ChangeInBatteryBalance)
+						  fmt.Print("ChangeInConsumerBalance:")
+									  fmt.Println(con.ChangeInConsumerBalance)
+				  
+	}
+
+	
+	
+	fmt.Println("In initialize.PerformSettlement end ")
 	return nil,nil		
 	
 }
