@@ -795,11 +795,11 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 					//producer = <proposal>-producer
 					res.Producer.UserID = proposal.UserID
 					res.Consumer.UserID = res.UserID
-					res.Battery = "null"
+					//res.Battery.UserID = "null"
 					//Grid = <gridUser>-usrid
-					res.Grid = gridUserInfo.UserID
+					res.Grid.UserID = gridUserInfo.UserID
 					//platform = <platform>-platformid
-					res.Platform = platformChargeInfo.PlatformID
+					res.Platform.UserID = platformChargeInfo.PlatformID
 					
 					body, err := json.Marshal(res)
 					if err != nil {
