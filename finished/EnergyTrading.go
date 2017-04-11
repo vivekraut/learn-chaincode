@@ -442,7 +442,7 @@ func GetMeterReading(energyReadingID string, stub shim.ChaincodeStubInterface)(M
 
 func GetBalance(userID string, stub shim.ChaincodeStubInterface)(Balance, error) {
 	fmt.Println("In query.GetBalance start ")
-	key := userID + "_" + "Balance"
+	key := userID
 	var balanceUser Balance
 	balanceUserBytes, err := stub.GetState(key)
 	if err != nil {
@@ -778,7 +778,8 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 				if(gridUserInfo.UserID != "" && gridPriceInfo.UserID != ""){	
 					fmt.Println("User Found. Signing the contract")
 					gridUserPrice := gridPriceInfo.Price
-					platformChargeInfo,err := GetPlatformCharge("0", stub)
+					// Default Platform ID - P001
+					platformChargeInfo,err := GetPlatformCharge("P001", stub)
 					if err != nil {
 						fmt.Println("Error retrieving the platform charge details")
 						return nil, errors.New("Error retrieving the platform charge details")
@@ -805,11 +806,54 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 					res.PlatformComission = platformCharge
 					//producer = <proposal>-producer
 					res.Producer.UserID = proposal.UserID
+					res.Producer.EnergyProduced = proposal.EnergyProposed	
+					
+					producerUser,err := GetUser(res.Producer.UserID+"_Prosumer", stub)
+					res.Producer.EnergyConsumed = producerUser.EnergyConsumed	
+					//res.Producer.EnergyProduced = producerUser.EnergyProduced
+					res.Producer.UserType = 	producerUser.UserType
+					res.Producer.EnergyAccountBalance = producerUser.EnergyAccountBalance
+					res.Producer.SmartMeterID = producerUser.SmartMeterID					
+					producerUpdate, err := json.Marshal(res.Producer)
+					if err != nil {
+						panic(err)
+					}
+					
+					fmt.Println(string(producerUpdate))	
+					err = stub.PutState(res.Producer.UserID+"_Prosumer", []byte(string(producerUpdate)))
+					if err != nil {
+						fmt.Println("Failed to update producer ")
+					}
+					fmt.Println("Updated producer  with Key : "+ res.Producer.UserID+"_Prosumer")
+										
 					res.Consumer.UserID = res.UserID
-					//res.Battery.UserID = "null"
+					// Default Battery ID - B001
+					consumerUser,err := GetUser(res.UserID+"_Prosumer", stub)
+					res.Consumer.EnergyConsumed = consumerUser.EnergyConsumed	
+					res.Consumer.EnergyProduced = consumerUser.EnergyProduced
+					res.Consumer.UserType = 	consumerUser.UserType
+					res.Consumer.EnergyAccountBalance = consumerUser.EnergyAccountBalance
+					res.Consumer.SmartMeterID = consumerUser.SmartMeterID
+					
+					batteryUser,err := GetUser("B001_Battery", stub)
+					res.Battery.UserID = "B001"
+					res.Battery.EnergyConsumed = batteryUser.EnergyConsumed	
+					res.Battery.EnergyProduced = batteryUser.EnergyProduced
+					res.Battery.UserType = 	batteryUser.UserType
+					
+					/*
+					var batteryUser User			
+					batteryUser,err = GetUsers("B001" + "_" + "Battery", stub)
+					if err != nil {
+						fmt.Println("Error getting  the battery user details")
+						return nil, errors.New("Error getting  the battery user details")
+					}
+					*/
+										
+					
 					//Grid = <gridUser>-usrid
 					res.Grid.UserID = gridUserInfo.UserID
-					//platform = <platform>-platformid
+					// Default platform ID - P001
 					res.Platform.UserID = platformChargeInfo.PlatformID
 					
 					body, err := json.Marshal(res)
@@ -982,6 +1026,8 @@ func MeterReading(meterReadingJSON string, stub shim.ChaincodeStubInterface) ([]
 				return nil, errors.New("Error converting Energy Produced")
 			}
 			
+			fmt.Println("Energy Amount (Integer)")	
+			fmt.Println(energyAmtInt)
 			
 			if(energyAmtInt > 0){
 				energyConsumedVal := energyConsInt + energyAmtInt
@@ -994,18 +1040,21 @@ func MeterReading(meterReadingJSON string, stub shim.ChaincodeStubInterface) ([]
 				users.EnergyConsumed = 	strconv.Itoa(energyConsumedVal)			
 				users.EnergyProduced = 	strconv.Itoa(energyProdVal)		
 			}		
-
+			fmt.Println("Energy Consumed")	
+			fmt.Println(users.EnergyConsumed)	
+			fmt.Println("Energy Produced")	
+			fmt.Println(users.EnergyProduced)
 			
 			bodyUser, err := json.Marshal(users)
 			if err != nil {
 				panic(err)
 			}
 			fmt.Println(string(bodyUser))	
-			err = stub.PutState(users.UserID, []byte(string(bodyUser)))
+			err = stub.PutState(users.UserID+"_Prosumer", []byte(string(bodyUser)))
 			if err != nil {
 				fmt.Println("Failed to update User Details ")
 			}
-			fmt.Println("Updated user details  with Key : "+ users.UserID)			
+			fmt.Println("Updated user details  with Key : "+ (users.UserID+"_Prosumer"))			
 			
 		}			
 	}		
@@ -1028,14 +1077,21 @@ func BalanceUpdate(balanceUpdateJSON string, stub shim.ChaincodeStubInterface) (
 	
 	fmt.Println("Balance of user  : ",res.Balance)	
 	
-	err = stub.PutState(res.UserID + "_" + "Balance", []byte(balanceUpdateJSON))
-	if err != nil {
-		fmt.Println("Failed to Update Balance ")
-	}
-	fmt.Println("Updated Balance with Key : "+ res.UserID + "_" + "Balance")
-	fmt.Println("In initialize.BalanceUpdate end ")
-	return nil,nil		
+	consumerUser,err := GetUser(res.UserID, stub)
+	consumerUser.EnergyAccountBalance = res.Balance	
 	
+	consumerUpdate, err := json.Marshal(consumerUser)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(consumerUpdate))	
+	err = stub.PutState(res.UserID, []byte(string(consumerUpdate)))
+	if err != nil {
+		fmt.Println("Failed to update User Balance ")
+	}
+	fmt.Println("Updated User Balance  with Key : "+ res.UserID)
+	fmt.Println("In initialize.BalanceUpdate end ")
+	return nil,nil			
 }
 
 
@@ -1048,7 +1104,6 @@ func PerformSettlement(dateVal string, stub shim.ChaincodeStubInterface) ([]byte
 		fmt.Println("Error retrieving contract IDs")
 		return nil, errors.New("Error retrieving contract IDs")		
 	}
-	
 	
 	var contractIDs [] string
 	contractIDs = strings.Split(string(contractIDsBytes), ",")
@@ -1146,6 +1201,22 @@ func PerformSettlement(dateVal string, stub shim.ChaincodeStubInterface) ([]byte
 							var l_contract = contracts[i];
 							producer := l_contract.Producer;
 							consumer := l_contract.Consumer;
+							
+							producerUser,err := GetUser(producer.UserID+"_Prosumer", stub)
+							producer.EnergyConsumed = producerUser.EnergyConsumed	
+							producer.EnergyProduced = producerUser.EnergyProduced
+							producer.UserType = 	producerUser.UserType
+							producer.EnergyAccountBalance = producerUser.EnergyAccountBalance
+							producer.SmartMeterID = producerUser.SmartMeterID							
+							
+							consumerUser,err := GetUser(consumer.UserID+"_Prosumer", stub)
+							consumer.EnergyConsumed = consumerUser.EnergyConsumed	
+							consumer.EnergyProduced = consumerUser.EnergyProduced
+							consumerr.UserType = 	consumerUser.UserType
+							consumer.EnergyAccountBalance = consumerUser.EnergyAccountBalance
+							consumer.SmartMeterID = consumerUser.SmartMeterID
+							
+							
 							val1 , _ := strconv.ParseFloat(l_contract.EnergySigned, 64);
 							val2 , _ := strconv.ParseFloat(producer.EnergyProduced, 64);     
 							val3 , _ := strconv.ParseFloat(producer.EnergyConsumed, 64);
