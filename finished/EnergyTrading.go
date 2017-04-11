@@ -1393,6 +1393,23 @@ func PerformSettlement(dateVal string, stub shim.ChaincodeStubInterface) ([]byte
 				
 				// Updating the contract after the settlement
 				
+				producerUser,err := GetUsers(con.Producer.UserID+"_Prosumer", stub)
+				if err != nil {
+					fmt.Println("Failed to retrieve producer ")
+				}				
+				con.Producer = producerUser
+				
+				consumerUser,err := GetUsers(con.Consumer.UserID+"_Prosumer", stub)
+				if err != nil {
+					fmt.Println("Failed to retrieve consumer ")
+				}
+				con.Consumer = consumerUser
+				
+				batteryUser,err := GetUsers(con.Battery.UserID+"_Battery", stub)
+				if err != nil {
+					fmt.Println("Failed to retrieve battery ")
+				}
+				con.Battery = batteryUser
 				
 				
 				conUpdate, err := json.Marshal(con)
