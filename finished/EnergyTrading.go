@@ -808,7 +808,7 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 					res.Producer.UserID = proposal.UserID
 					res.Producer.EnergyProduced = proposal.EnergyProposed	
 					
-					producerUser,err := GetUser(res.Producer.UserID+"_Prosumer", stub)
+					producerUser,err := GetUsers(res.Producer.UserID+"_Prosumer", stub)
 					res.Producer.EnergyConsumed = producerUser.EnergyConsumed	
 					//res.Producer.EnergyProduced = producerUser.EnergyProduced
 					res.Producer.UserType = 	producerUser.UserType
@@ -828,14 +828,14 @@ func SignContract(signContractJSON string, stub shim.ChaincodeStubInterface) ([]
 										
 					res.Consumer.UserID = res.UserID
 					// Default Battery ID - B001
-					consumerUser,err := GetUser(res.UserID+"_Prosumer", stub)
+					consumerUser,err := GetUsers(res.UserID+"_Prosumer", stub)
 					res.Consumer.EnergyConsumed = consumerUser.EnergyConsumed	
 					res.Consumer.EnergyProduced = consumerUser.EnergyProduced
 					res.Consumer.UserType = 	consumerUser.UserType
 					res.Consumer.EnergyAccountBalance = consumerUser.EnergyAccountBalance
 					res.Consumer.SmartMeterID = consumerUser.SmartMeterID
 					
-					batteryUser,err := GetUser("B001_Battery", stub)
+					batteryUser,err := GetUsers("B001_Battery", stub)
 					res.Battery.UserID = "B001"
 					res.Battery.EnergyConsumed = batteryUser.EnergyConsumed	
 					res.Battery.EnergyProduced = batteryUser.EnergyProduced
@@ -1077,7 +1077,7 @@ func BalanceUpdate(balanceUpdateJSON string, stub shim.ChaincodeStubInterface) (
 	
 	fmt.Println("Balance of user  : ",res.Balance)	
 	
-	consumerUser,err := GetUser(res.UserID, stub)
+	consumerUser,err := GetUsers(res.UserID, stub)
 	consumerUser.EnergyAccountBalance = res.Balance	
 	
 	consumerUpdate, err := json.Marshal(consumerUser)
@@ -1202,14 +1202,14 @@ func PerformSettlement(dateVal string, stub shim.ChaincodeStubInterface) ([]byte
 							producer := l_contract.Producer;
 							consumer := l_contract.Consumer;
 							
-							producerUser,err := GetUser(producer.UserID+"_Prosumer", stub)
+							producerUser,err := GetUsers(producer.UserID+"_Prosumer", stub)
 							producer.EnergyConsumed = producerUser.EnergyConsumed	
 							producer.EnergyProduced = producerUser.EnergyProduced
 							producer.UserType = 	producerUser.UserType
 							producer.EnergyAccountBalance = producerUser.EnergyAccountBalance
 							producer.SmartMeterID = producerUser.SmartMeterID							
 							
-							consumerUser,err := GetUser(consumer.UserID+"_Prosumer", stub)
+							consumerUser,err := GetUsers(consumer.UserID+"_Prosumer", stub)
 							consumer.EnergyConsumed = consumerUser.EnergyConsumed	
 							consumer.EnergyProduced = consumerUser.EnergyProduced
 							consumerr.UserType = 	consumerUser.UserType
