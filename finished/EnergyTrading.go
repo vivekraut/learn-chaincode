@@ -1393,25 +1393,146 @@ func PerformSettlement(dateVal string, stub shim.ChaincodeStubInterface) ([]byte
 				
 				// Updating the contract after the settlement
 				
+				// Producer balance update starts here
 				producerUser,err := GetUsers(con.Producer.UserID+"_Prosumer", stub)
 				if err != nil {
 					fmt.Println("Failed to retrieve producer ")
 				}				
-				con.Producer = producerUser
+				con.Producer = producerUser		
+				 
+				prodBalanceFloat, errPB := strconv.ParseFloat(producerUser.EnergyAccountBalance, 64)
+				if errPB != nil {
+					fmt.Println("Error converting Producer Balance")
+					return nil, errors.New("Error converting Producer Balance")
+				}
 				
+				changeProdBalanceFloat, errCPB := strconv.ParseFloat(con.ChangeInProducerBalance, 64);
+				if errCPB != nil {
+					fmt.Println("Error converting Changed Producer Balance")
+					return nil, errors.New("Error converting Changed Producer Balance")
+				}								
+				prodBalanceFloat = prodBalanceFloat + changeProdBalanceFloat				
+				producerUser.EnergyAccountBalance = strconv.FormatFloat(prodBalanceFloat, 'f', 6, 64)
+				
+				// Producer balance update ends here
+				
+				// Updating Consumer Balance
 				consumerUser,err := GetUsers(con.Consumer.UserID+"_Prosumer", stub)
 				if err != nil {
 					fmt.Println("Failed to retrieve consumer ")
 				}
 				con.Consumer = consumerUser
+				consumerBalanceFloat, errCB := strconv.ParseFloat(producerUser.EnergyAccountBalance, 64)
+				if errPB != nil {
+					fmt.Println("Error converting Consumer Balance")
+					return nil, errors.New("Error converting Consumer Balance")
+				}
+				
+				changeConBalanceFloat, errCCB := strconv.ParseFloat(con.ChangeInConsumerBalance, 64);
+				if errCPB != nil {
+					fmt.Println("Error converting Changed Consumer Balance")
+					return nil, errors.New("Error converting Changed Consumer Balance")
+				}								
+				consumerBalanceFloat = consumerBalanceFloat + changeConBalanceFloat
+				consumerUser.EnergyAccountBalance = strconv.FormatFloat(consumerBalanceFloat, 'f', 6, 64)
+				
+				// Consumer Balance Update ends here
 				
 				batteryUser,err := GetUsers(con.Battery.UserID+"_Battery", stub)
 				if err != nil {
 					fmt.Println("Failed to retrieve battery ")
 				}
 				con.Battery = batteryUser
+				batteryBalanceFloat, errBB := strconv.ParseFloat(batteryUser.EnergyAccountBalance, 64)
+				if errBB != nil {
+					fmt.Println("Error converting Battery Balance")
+					return nil, errors.New("Error converting Battery Balance")
+				}
+				
+				changeBatteryBalanceFloat, errCBB := strconv.ParseFloat(con.ChangeInBatteryBalance, 64)
+				if errCBB != nil {
+					fmt.Println("Error converting Changed Battery Balance")
+					return nil, errors.New("Error converting Changed Battery Balance")
+				}								
+				batteryBalanceFloat = batteryBalanceFloat + changeBatteryBalanceFloat
+				batteryUser.EnergyAccountBalance = strconv.FormatFloat(batteryBalanceFloat, 'f', 6, 64)
+				
+				// Battery balance update ends here
 				
 				
+				// Grid balance update starts here
+				gridUser,err := GetUsers("0_Grid", stub)
+				if err != nil {
+					fmt.Println("Failed to retrieve grid ")
+				}				
+				con.Grid = gridUser		
+				
+				gridBalanceFloat, errGB := strconv.ParseFloat(gridUser.EnergyAccountBalance, 64)
+				if errGB != nil {
+					fmt.Println("Error converting Grid Balance")
+					return nil, errors.New("Error converting Grid Balance")
+				}
+				
+				changeGridBalanceFloat, errCPB := strconv.ParseFloat(con.ChangeInGridBalance, 64)
+				if errCPB != nil {
+					fmt.Println("Error converting Changed Grid Balance")
+					return nil, errors.New("Error converting Changed Grid Balance")
+				}								
+				gridBalanceFloat = gridBalanceFloat + changeGridBalanceFloat				
+				gridUser.EnergyAccountBalance = strconv.FormatFloat(gridBalanceFloat, 'f', 6, 64)
+				
+				// Grid balance update ends here
+				
+				// Updating producer balance
+				producerUpdate, err := json.Marshal(producerUser)
+				if err != nil {
+					panic(err)
+				}
+				fmt.Println(string(producerUpdate))	
+				err = stub.PutState(con.Producer.UserID+"_Prosumer", []byte(string(producerUpdate)))
+				if err != nil {
+					fmt.Println("Failed to update producer ")
+				}
+				fmt.Println("Updated Producer  with Key : "+ con.Producer.UserID+"_Prosumer")
+				
+				// Updating consumer balance
+				consumerUpdate, err := json.Marshal(consumerUser)
+				if err != nil {
+					panic(err)
+				}
+				fmt.Println(string(consumerUpdate))	
+				err = stub.PutState(con.Consumer.UserID+"_Prosumer", []byte(string(consumerUpdate)))
+				if err != nil {
+					fmt.Println("Failed to update consumer ")
+				}
+				fmt.Println("Updated consumer  with Key : "+ con.Consumer.UserID+"_Prosumer")
+				
+				// Updating Battery balance
+				batteryUpdate, err := json.Marshal(batteryUser)
+				if err != nil {
+					panic(err)
+				}
+				fmt.Println(string(batteryUpdate))	
+				err = stub.PutState(con.Battery.UserID+"_Battery", []byte(string(batteryUpdate)))
+				if err != nil {
+					fmt.Println("Failed to update battery balance ")
+				}
+				fmt.Println("Updated battery balance  with Key : "+ con.Battery.UserID+"_Battery")
+				
+				// Updating Grid Balance
+				gridUpdate, err := json.Marshal(gridUser)
+				if err != nil {
+					panic(err)
+				}
+				fmt.Println(string(gridUpdate))	
+				err = stub.PutState("0_Grid", []byte(string(gridUpdate)))
+				if err != nil {
+					fmt.Println("Failed to update grid balance ")
+				}
+				fmt.Println("Updated grid balance  with Key : 0_Grid")
+				
+				
+				// Updating the contract
 				conUpdate, err := json.Marshal(con)
 				if err != nil {
 					panic(err)
