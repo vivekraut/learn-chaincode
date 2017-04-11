@@ -1423,13 +1423,13 @@ func PerformSettlement(dateVal string, stub shim.ChaincodeStubInterface) ([]byte
 				}
 				con.Consumer = consumerUser
 				consumerBalanceFloat, errCB := strconv.ParseFloat(producerUser.EnergyAccountBalance, 64)
-				if errPB != nil {
+				if errCB != nil {
 					fmt.Println("Error converting Consumer Balance")
 					return nil, errors.New("Error converting Consumer Balance")
 				}
 				
 				changeConBalanceFloat, errCCB := strconv.ParseFloat(con.ChangeInConsumerBalance, 64);
-				if errCPB != nil {
+				if errCCB != nil {
 					fmt.Println("Error converting Changed Consumer Balance")
 					return nil, errors.New("Error converting Changed Consumer Balance")
 				}								
