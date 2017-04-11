@@ -1212,7 +1212,7 @@ func PerformSettlement(dateVal string, stub shim.ChaincodeStubInterface) ([]byte
 							consumerUser,err := GetUsers(consumer.UserID+"_Prosumer", stub)
 							consumer.EnergyConsumed = consumerUser.EnergyConsumed	
 							consumer.EnergyProduced = consumerUser.EnergyProduced
-							consumerr.UserType = 	consumerUser.UserType
+							consumer.UserType = 	consumerUser.UserType
 							consumer.EnergyAccountBalance = consumerUser.EnergyAccountBalance
 							consumer.SmartMeterID = consumerUser.SmartMeterID
 							
