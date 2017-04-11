@@ -1055,7 +1055,7 @@ func PerformSettlement(dateVal string, stub shim.ChaincodeStubInterface) ([]byte
 	
 	var contracts [] Contract;
 	
-	for i := 0; i < len(contractIDs); i++{
+	for i := 1; i < len(contractIDs); i++{
 		contractIDVal := contractIDs[i];
 		var contractDetails Contract
 		contractDetails,err = GetContract(contractIDVal, stub)
@@ -1312,6 +1312,23 @@ func PerformSettlement(dateVal string, stub shim.ChaincodeStubInterface) ([]byte
 				fmt.Println(con.ChangeInBatteryBalance)
 				fmt.Print("ChangeInConsumerBalance:")
 				fmt.Println(con.ChangeInConsumerBalance)
+				
+				// Updating the contract after the settlement
+				
+				
+				
+				conUpdate, err := json.Marshal(con)
+				if err != nil {
+					panic(err)
+				}
+				fmt.Println(string(conUpdate))	
+				err = stub.PutState(con.ContractID, []byte(string(conUpdate)))
+				if err != nil {
+					fmt.Println("Failed to update contract ")
+				}
+				fmt.Println("Updated Contract  with Key : "+ con.ContractID)
+				
+				
 	}
 	fmt.Println("In initialize.PerformSettlement end ")
 	return nil,nil		
