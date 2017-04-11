@@ -1203,6 +1203,10 @@ func PerformSettlement(dateVal string, stub shim.ChaincodeStubInterface) ([]byte
 							consumer := l_contract.Consumer;
 							
 							producerUser,err := GetUsers(producer.UserID+"_Prosumer", stub)
+							if err != nil {
+								fmt.Println("Failed to retrieve producer ")
+							}
+							
 							producer.EnergyConsumed = producerUser.EnergyConsumed	
 							producer.EnergyProduced = producerUser.EnergyProduced
 							producer.UserType = 	producerUser.UserType
@@ -1210,6 +1214,9 @@ func PerformSettlement(dateVal string, stub shim.ChaincodeStubInterface) ([]byte
 							producer.SmartMeterID = producerUser.SmartMeterID							
 							
 							consumerUser,err := GetUsers(consumer.UserID+"_Prosumer", stub)
+							if err != nil {
+								fmt.Println("Failed to retrieve consumer ")
+							}
 							consumer.EnergyConsumed = consumerUser.EnergyConsumed	
 							consumer.EnergyProduced = consumerUser.EnergyProduced
 							consumer.UserType = 	consumerUser.UserType
