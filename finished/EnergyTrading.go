@@ -1422,7 +1422,7 @@ func PerformSettlement(dateVal string, stub shim.ChaincodeStubInterface) ([]byte
 					fmt.Println("Failed to retrieve consumer ")
 				}
 				con.Consumer = consumerUser
-				consumerBalanceFloat, errCB := strconv.ParseFloat(producerUser.EnergyAccountBalance, 64)
+				consumerBalanceFloat, errCB := strconv.ParseFloat(consumerUser.EnergyAccountBalance, 64)
 				if errCB != nil {
 					fmt.Println("Error converting Consumer Balance")
 					return nil, errors.New("Error converting Consumer Balance")
