@@ -135,6 +135,10 @@ func GetStatus(RRDNo string, stub shim.ChaincodeStubInterface)(Status, error) {
 	key := RRDNo
 	var status Status	
 	demand,err := GetDemand(key, stub)
+	if err != nil {
+		fmt.Println("Error retrieving Status" , RRDNo)
+		return demand, errors.New("Error retrieving Status" + RRDNo)
+	}
 	status.RRDNo = key
 	status.Status = demand.Status		
 	fmt.Println("Demand Status   : " , status);
