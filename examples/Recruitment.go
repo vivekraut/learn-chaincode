@@ -176,7 +176,7 @@ func AddDemand(demandJSON string, stub shim.ChaincodeStubInterface) ([]byte, err
 	if err != nil {
 		fmt.Println("Failed to create Demand ")
 	}	
-	err = stub.PutState(res.RRDNo + "_" + res.Status, []byte(res.Status))
+	err = stub.PutState(res.RRDNo + "_Status", []byte(res.DemandStatus))
 	if err != nil {
 		fmt.Println("Failed to set RRD Status ")
 	}	
