@@ -161,12 +161,7 @@ func AddDemand(demandJSON string, stub shim.ChaincodeStubInterface) ([]byte, err
 	if err != nil {
         panic(err)
     }
-	
-	fmt.Println(string(body))		
-	body, err := json.Marshal(res)
-	if err != nil {
-        panic(err)
-    }
+
     fmt.Println(string(body))	
 	err = stub.PutState(res.RRDNo, []byte(string(body)))
 	if err != nil {
