@@ -22,13 +22,12 @@ type Demand struct{
 	YearsOfExperience string `json:"YearsOfExperience"`
 	Location string `json:"Location"`
 	Priority string `json:"Priority"`
-	Status string `json:"Status"`
+	DemandStatus string `json:"DemandStatus"`
 	Certification []Certification `json:"Certification"`
 	JobDescription []JobDescription `json:"JobDescription"`
 	MustHave []MustHave `json:"MustHave"`
 	GoodToHave []GoodToHave `json:"GoodToHave"`
-	SalaryRange []SalaryRange `json:"SalaryRange"`
-	Status []Status `json:"Status"`
+	SalaryRange []SalaryRange `json:"SalaryRange"`	
 }
 
 type Certification struct{
@@ -146,8 +145,8 @@ func GetStatus(RRDNo string, stub shim.ChaincodeStubInterface)(Status, error) {
 		return status, errors.New("Error retrieving Status" + RRDNo)
 	}
 	status.RRDNo = key
-	status.Status = demand.Status		
-	fmt.Println("Demand Status   : " , status);
+	status.Status = demand.DemandStatus		
+	fmt.Println("Demand Status   : " , status.Status);
 	fmt.Println("In query.GetStatus end ")
 	return status, nil
 }
@@ -198,7 +197,7 @@ func StatusUpdate(demandStatusJSON string, stub shim.ChaincodeStubInterface) ([]
 	fmt.Println("Status of Demand   : ",res.Status)	
 	
 	demandDet,err := GetDemand(res.RRDNo, stub)
-	demandDet.Status = res.Status	
+	demandDet.DemandStatus = res.Status	
 	
 	demandStatusUpdate, err := json.Marshal(demandDet)
 	if err != nil {
