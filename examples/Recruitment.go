@@ -23,11 +23,11 @@ type Demand struct{
 	Location string `json:"Location"`
 	Priority string `json:"Priority"`
 	DemandStatus string `json:"DemandStatus"`
-	Certification []Certification `json:"Certification"`
-	JobDescription []JobDescription `json:"JobDescription"`
-	MustHave []MustHave `json:"MustHave"`
-	GoodToHave []GoodToHave `json:"GoodToHave"`
-	SalaryRange []SalaryRange `json:"SalaryRange"`	
+	Certification string `json:"Certification"`
+	JobDescription string `json:"JobDescription"`
+	MustHaveSkills string `json:"MustHave"`
+	GoodToHaveSkills string `json:"GoodToHave"`
+	SalaryMax string `json:"SalaryMax"`	
 }
 
 type Certification struct{
