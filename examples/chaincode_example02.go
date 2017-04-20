@@ -4,9 +4,9 @@ package main
 import (
 	"errors"
 	"fmt"
-	"strconv"
-	"time"
-	"strings"
+	//"strconv"
+	//"time"
+	//"strings"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	"encoding/json"
 )
@@ -121,7 +121,7 @@ func GetDemand(RRDNo string, stub shim.ChaincodeStubInterface)(Demand, error) {
 	demandBytes, err := stub.GetState(key)
 	if err != nil {
 		fmt.Println("Error retrieving demand" , RRDNo)
-		return users, errors.New("Error retrieving demand" + RRDNo)
+		return demand, errors.New("Error retrieving demand" + RRDNo)
 	}
 	err = json.Unmarshal(demandBytes, &demand)
 	fmt.Println("Demand   : " , demand);
@@ -130,7 +130,7 @@ func GetDemand(RRDNo string, stub shim.ChaincodeStubInterface)(Demand, error) {
 }
 
 
-func GetStatus(RRDNo string, stub shim.ChaincodeStubInterface)(Balance, error) {
+func GetStatus(RRDNo string, stub shim.ChaincodeStubInterface)(Status, error) {
 	fmt.Println("In query.GetStatus start ")
 	key := RRDNo
 	var status Status	
@@ -156,6 +156,12 @@ func AddDemand(demandJSON string, stub shim.ChaincodeStubInterface) ([]byte, err
 		fmt.Println("Failed to unmarshal Demand ")
 	}	
 	fmt.Println("RRD Number : ",res.RRDNo)	
+	
+	body, err := json.Marshal(res)
+	if err != nil {
+        panic(err)
+    }
+	
 	fmt.Println(string(body))		
 	body, err := json.Marshal(res)
 	if err != nil {
